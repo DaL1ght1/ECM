@@ -1,0 +1,144 @@
+.file-explorer {
+  display: flex;
+  height: 100vh;
+  background-color: #f4f4f4;
+
+  .sidebar {
+    width: 250px;
+    background-color: #ffffff;
+    border-right: 1px solid #e0e0e0;
+    padding: 1rem;
+    overflow-y: auto;
+
+    ::ng-deep .p-tree {
+      border: none;
+
+      .p-treenode-content {
+        padding: 0.5rem;
+
+        &:hover {
+          background-color: #f0f0f0;
+        }
+      }
+    }
+  }
+
+  .main-content {
+    flex: 1;
+    padding: 1rem;
+    overflow-y: auto;
+  }
+
+  .p-toolbar {
+    background-color: #ffffff;
+    border-bottom: 1px solid #e0e0e0;
+    margin-bottom: 1rem;
+
+    .p-button {
+      margin-right: 0.5rem;
+    }
+  }
+
+  .file-item, .file-item-list {
+    background-color: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &:hover {
+      background-color: #f0f0f0;
+    }
+
+    i {
+      font-size: 2rem;
+      margin-right: 0.5rem;
+      color: #607D8B;
+    }
+  }
+
+  .file-item {
+    text-align: center;
+
+    span {
+      display: block;
+      margin-top: 0.5rem;
+      word-break: break-word;
+    }
+  }
+
+  .file-item-list {
+    display: flex;
+    align-items: center;
+
+    span {
+      margin-right: 1rem;
+    }
+
+    .file-size, .file-type {
+      color: #757575;
+      font-size: 0.9rem;
+    }
+  }
+
+  .create-directory {
+    background-color: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    padding: 1rem;
+    margin-top: 1rem;
+
+    h3 {
+      margin-top: 0;
+      margin-bottom: 1rem;
+      color: #424242;
+    }
+
+    .p-inputgroup {
+      .p-inputtext {
+        flex: 1;
+      }
+    }
+  }
+
+  ::ng-deep {
+    .p-dialog {
+      .p-dialog-content {
+        padding: 2rem;
+      }
+    }
+
+    .p-datatable {
+      .p-datatable-thead > tr > th {
+        background-color: #f5f5f5;
+      }
+    }
+
+    .p-dataview {
+      .p-dataview-content {
+        background-color: #ffffff;
+        padding: 1rem;
+      }
+    }
+
+    .p-overlaypanel {
+      .p-overlaypanel-content {
+        padding: 1rem;
+      }
+    }
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .file-explorer {
+    flex-direction: column;
+
+    .sidebar {
+      width: 100%;
+      border-right: none;
+      border-bottom: 1px solid #e0e0e0;
+    }
+  }
+}

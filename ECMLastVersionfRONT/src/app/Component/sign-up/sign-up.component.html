@@ -1,0 +1,180 @@
+<div class="Maram">
+  <div class="form-container">
+    <form (ngSubmit)="submitForm()">
+      <div class="form-content">
+        <!-- Error and Notification Messages -->
+        <p-toast></p-toast>
+
+        <p-stepper #stepper [(activeStep)]="activeIndex">
+          <!-- Step 1 -->
+          <p-stepperPanel>
+            <ng-template pTemplate="content">
+              <div *ngIf="!loading">
+                <h2 class="form-title"><b><i>Hello,</i></b></h2>
+                <p><b><i>General Information:</i></b></p>
+                <div class="formgrid grid p-fluid">
+                  <div class="field col-12 md:col-6">
+                    <div class="p-inputgroup">
+                      <span class="p-inputgroup-addon">
+                        <i class="pi pi-user"></i>
+                      </span>
+                      <input id="name2" type="text" required placeholder="Firstname" class="p-inputtext p-component w-full"
+                             [(ngModel)]="person.name" name="name">
+                    </div>
+                  </div>
+                  <div class="field col-12 md:col-6">
+                    <div class="p-inputgroup">
+                      <span class="p-inputgroup-addon">
+                        <i class="pi pi-user"></i>
+                      </span>
+                      <input id="lastname2" type="text" required placeholder="Lastname" class="p-inputtext p-component w-full"
+                             [(ngModel)]="person.lastName" name="lastName">
+                    </div>
+                  </div>
+                </div>
+                <div class="formgrid grid p-fluid">
+                  <div class="field col-12 md:col-6">
+                    <div class="p-inputgroup">
+                      <span class="p-inputgroup-addon">
+                        <i class="pi pi-phone"></i>
+                      </span>
+                      <span class="p-inputgroup-addon">+216</span>
+                      <input type="text" placeholder="Phone" required minlength="8" class="p-inputtext p-component w-full"
+                             [(ngModel)]="person.phone" name="phone">
+                    </div>
+                  </div>
+                  <div class="field col-12 md:col-6">
+                    <p>Gender</p>
+                    <div class="formgroup-inline">
+                      <div class="field-radiobutton">
+                        <input type="radio" id="genderMale" name="gender" value="Male" [(ngModel)]="person.gender">
+                        <label for="genderMale">Male</label>
+                      </div>
+                      <div class="field-radiobutton">
+                        <input type="radio" id="genderFemale" name="gender" value="Female" [(ngModel)]="person.gender">
+                        <label for="genderFemale">Female</label>
+                      </div>
+                      <div class="field-radiobutton">
+                        <input type="radio" id="genderOther" name="gender" value="Other" [(ngModel)]="person.gender">
+                        <label for="genderOther">Other</label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="form-buttons">
+                  <span>
+                    <p-button label="Register" (click)="SignIn()" [size]="'small'" [link]="true" pTooltip="Already have an account ?" tooltipPosition="bottom">
+                    </p-button>
+                  </span>
+                  <p-button label="Next" (click)="nextStep()" [size]="'small'" [link]="true"></p-button>
+                </div>
+              </div>
+            </ng-template>
+          </p-stepperPanel>
+
+          <!-- Step 2 -->
+          <p-stepperPanel>
+            <ng-template pTemplate="content">
+              <div *ngIf="!loading">
+                <h2 class="form-title"><b><i>Have a Good Day,</i></b></h2>
+                <p><b><i>Other Information:</i></b></p>
+                <div class="formgrid grid p-fluid">
+                  <div class="field col-12 md:col-6">
+                    <div class="p-inputgroup">
+                      <span class="p-inputgroup-addon">
+                        <i class="pi pi-address-book"></i>
+                      </span>
+                      <input placeholder="Address" required class="p-inputtext p-component w-full" [(ngModel)]="person.address" name="address">
+                    </div>
+                  </div>
+                  <div class="field col-12 md:col-6">
+                    <div class="calendar-container">
+                      <p-calendar
+                        placeholder="Select your birth date"
+                        name="Dateofbirth"
+                        [(ngModel)]="date"
+                        [showIcon]="true">
+                      </p-calendar>
+                    </div>
+                  </div>
+                </div>
+                <p><b><i>Security Options:</i></b></p>
+                <div class="formgrid grid p-fluid">
+                  <div class="field col-12 md:col-6">
+                    <div class="p-inputgroup">
+                      <span class="p-inputgroup-addon">
+                        <i class="pi pi-at"></i>
+                      </span>
+                      <input type="text" class="p-inputtext w-full" placeholder="Enter your email" [(ngModel)]="person.email" name="mail">
+                    </div>
+                  </div>
+                  <div class="field col-12 md:col-6">
+                    <div class="p-inputgroup">
+                      <span class="p-inputgroup-addon">
+                        <i class="pi pi-lock"></i>
+                      </span>
+                      <input id="password" type="password" required placeholder="Password" class="p-inputtext p-component w-full"
+                             [(ngModel)]="person.password" name="password" (blur)="validatePass()">
+                    </div>
+                  </div>
+                  <div class="field col-12 md:col-6">
+                    <div class="p-inputgroup">
+                      <span class="p-inputgroup-addon">
+                        <i class="pi pi-lock"></i>
+                      </span>
+                      <input id="rePassword" type="password" required placeholder="Re-enter Password" class="p-inputtext p-component w-full"
+                             [(ngModel)]="rePassword" name="rePassword" (blur)="validatePass()">
+                    </div>
+                  </div>
+                </div>
+                <div class="form-buttons">
+                  <p-button label="Back" (click)="previousStep()" [size]="'small'" [link]="true"></p-button>
+                  <p-button label="Next" (click)="submitForm()"  [raised]="true"></p-button>
+                </div>
+              </div>
+            </ng-template>
+          </p-stepperPanel>
+
+          <p-stepperPanel>
+            <ng-template pTemplate="content">
+              <div class="step-3-content">
+                <p-card header="Confirm Your Email" class="p-mb-4">
+                  <form (ngSubmit)="onSubmit()" #confirmForm="ngForm">
+                    <div class="card flex justify-content-center">
+                      <p-inputOtp [(ngModel)]="tokens" [integerOnly]="true" [length]="6" name="confirm"></p-inputOtp>
+                    </div>
+                    <br><br>
+                    <p-fieldset *ngIf="paragraph" legend="Header" [toggleable]="true">
+                      <p>
+                        Thank you for requesting to join our team and validating your email address! You're now just one step away from becoming part of our family.
+
+                        Your request has been forwarded to the Administrator for review. Once your submission is approved, you will be assigned a role.
+
+                        Please stay tuned for a confirmation email that will be sent to you in the near future.
+                      </p>
+                    </p-fieldset>
+                    <div class="button-group">
+                      <p-button type="submit" label="Confirm" icon="pi pi-check" [disabled]="!confirmForm.form.valid"></p-button>
+                      <p-button label="Back" (click)="previousStep()" [size]="'small'" [link]="true"></p-button>
+                    </div>
+                  </form>
+                </p-card>
+              </div>
+            </ng-template>
+          </p-stepperPanel>
+        </p-stepper>
+      </div>
+    </form>
+  </div>
+
+  <p-dialog [(visible)]="showSuccessModal" [modal]="true" [style]="{width: '400px'}" header="Success">
+    <p>A confirmation mail was sent to you check your inbox.</p>
+    <ng-template pTemplate="footer">
+      <button pButton type="button" class="okk" label="OK" (click)="onDialogOk()"></button>
+    </ng-template>
+  </p-dialog>
+</div>
+
+<div *ngIf="loading" class="loading-overlay">
+  <p-progressSpinner></p-progressSpinner>
+</div>

@@ -1,0 +1,72 @@
+.admin-dashboard {
+  padding: 20px;
+  background-color: #f4f4f4;
+
+  h2 {
+    margin-bottom: 20px;
+    font-size: 1.5em;
+    color: #495057;
+  }
+
+  .p-card {
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    background-color: #ffffff;
+    .p-card-content {
+      align-items: center;
+    }
+    p {
+      margin: 0;
+      color: #6c757d;
+    }
+    p-dropdown {
+      width: 100%;
+    }
+    .p-mt-2 {
+      margin-top: 0.5rem !important;
+    }
+  }
+
+
+
+
+  .p-toolbar-separator {
+    font-size: 1.5rem;
+    vertical-align: middle;
+  }
+
+  .p-list {
+    list-style-type: none;
+    padding: 0;
+  }
+
+  .p-toolbar {
+    margin-bottom: 20px;
+  }
+
+  .p-treeTable {
+    margin-top: 20px;
+  }
+
+  p-confirmDialog {
+    .p-dialog-header {
+      font-size: 1.25em;
+    }
+    .p-dialog-content {
+      font-size: 1em;
+    }
+  }
+
+  .p-datatable-customers p-dropdown {
+    width: 100%;
+    z-index: 10;
+    position: relative;
+  }
+
+  .p-datatable-customers .p-dropdown .p-dropdown-panel {
+    position: absolute;
+    top: 100%;
+    left: 0;
+  }
+}

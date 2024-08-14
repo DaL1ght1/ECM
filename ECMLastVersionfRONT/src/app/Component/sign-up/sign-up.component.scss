@@ -1,0 +1,245 @@
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 1000;
+}
+
+:host ::ng-deep {
+  .p-card {
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    border-radius: 15px;
+  }
+
+  .loading-overlay p-progressSpinner {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    border: 5px solid rgba(255, 255, 255, 0.2);
+    border-top-color: #007bff;
+    animation: spin 1.2s linear infinite;
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  .Maram {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: #f0f2f5;
+    padding: 1rem;
+  }
+
+  .form-container {
+    display: block;
+
+
+    justify-content: space-between;
+    align-items: center;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    max-width: 900px;
+    width: 100%;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .form-container:hover {
+    transform: scale(1.02);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+  }
+
+  .form-content {
+    flex: 1;
+    padding: 2rem 2.5rem;
+    border-right: 1px solid #e0e0e0;
+  }
+
+  .form-title {
+    margin-bottom: 1.5rem;
+    font-size: 2rem;
+    font-weight: 600;
+    color: #333;
+    padding-left: 1.5rem;
+  }
+
+  .formgrid .field {
+    margin-bottom: 1.5rem;
+  }
+
+  .p-inputgroup {
+    border-radius: 8px;
+    overflow: hidden;
+    background: #f9f9f9;
+  }
+
+  .p-inputgroup-addon {
+    background: #007bff;
+    color: #ffffff;
+  }
+
+  .p-inputtext {
+    border: 1px solid #ced4da;
+    border-radius: 0;
+    padding: 0.75rem;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+  }
+
+  .p-inputtext:focus {
+    border-color: #007bff;
+    outline: none;
+  }
+
+  .p-error {
+    color: #d9534f;
+    font-size: 0.875rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .button-group {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+
+  .form-image {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 1rem;
+    background: #f1f1f1;
+  }
+
+  .form-image img {
+    max-width: 90%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .p-stepper-panel {
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    opacity: 0;
+    transform: translateY(20px);
+    position: absolute;
+    width: 100%;
+    left: 0;
+    right: 0;
+  }
+
+  .p-stepper-panel.p-active {
+    opacity: 1;
+    transform: translateY(0);
+    position: relative;
+  }
+
+  p-stepperPanel ::ng-deep .p-stepper-panel-content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+  }
+
+  .p-stepper .p-stepper-panel .p-stepper-content {
+    padding: 2rem;
+  }
+
+  // New styles for the 3rd step
+  .p-stepper-panel:nth-child(3) {
+    .p-card {
+      width: 100%;
+      max-width: 400px;
+      margin: 0 auto;
+    }
+
+    .step-3-content {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      min-height: 60vh;
+      width: 100%;
+      padding: 2rem 0;
+    }
+
+    .p-card-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .button-group {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .Maram {
+      padding: 1rem;
+    }
+
+    .form-container {
+      width: auto;
+    }
+
+    .form-content {
+      padding: 2rem;
+    }
+
+    .form-title {
+      font-size: 2rem;
+    }
+
+    .button-group {
+      flex-direction: column;
+      align-items: center;
+    }
+
+    p-stepperPanel {
+      min-height: auto;
+    }
+  }
+}
+
+.stepper-container {
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.stepper-container.step-enter {
+  opacity: 0;
+  transform: translateX(-10%);
+}
+
+.stepper-container.step-enter-active {
+  opacity: 1;
+  transform: translateX(0%);
+}
+
+.stepper-container.step-exit {
+  opacity: 1;
+  transform: translateX(0%);
+}
+
+.stepper-container.step-exit-active {
+  opacity: 0;
+  transform: translateX(10%);
+}

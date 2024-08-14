@@ -1,0 +1,19 @@
+<br><br><br><br><br><br>
+<p-card header="Confirm Your Email" class="p-mb-4">
+  <form (ngSubmit)="onSubmit()" #confirmForm="ngForm">
+    <div class="card flex justify-content-center">
+      <p-inputOtp [(ngModel)]="token" [integerOnly]="true"  [length]="6" name="confirm" />
+    </div>
+    <br><br><br>
+    <p-fieldset *ngIf="paragraph" legend="Header" [toggleable]="true" >
+      <p>
+        Thank you for requesting to join our team and validating your email address! You’re now just one step away from becoming part of our family.
+
+        Your request has been forwarded to the Administrator for review. Once your submission is approved, you will be assigned a role.
+
+        Please stay tuned for a confirmation email that will be sent to you in the near future.
+      </p>
+    </p-fieldset>
+    <p-button type="submit" label="Confirm" icon="pi pi-check"  [disabled]="!confirmForm.form.valid"></p-button>
+  </form>
+</p-card>

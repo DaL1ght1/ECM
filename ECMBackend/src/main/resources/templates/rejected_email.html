@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ECM Application Status</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 10px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .rejection-message {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .content {
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+
+        .signature {
+            font-style: italic;
+            text-align: right;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>ECM Application Status</h1>
+    <p class="rejection-message" th:text="'Dear ' + ${username} + ','"></p>
+    <div class="content">
+        <p>Thank you for your interest in joining the ECM team. We appreciate you taking the time to apply.</p>
+        <p>After careful consideration, we have decided to not proceed with your application at this time. We understand
+            this may not be the outcome you were hoping for, and we apologize for any disappointment this may cause.</p>
+        <p>We wish you the best in your job search and encourage you to consider applying again in the future if you are
+            still interested.</p>
+    </div>
+    <div class="signature">
+        <p>Sincerely,<br>
+            The ECM Team</p>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,94 @@
+.Maram {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: #f0f2f5;
+  padding: 1rem;
+}
+
+.form-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  max-width: 900px;
+  width: 100%;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.form-container:hover {
+  transform: scale(1.02);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+}
+
+.form-content {
+  flex: 1;
+  padding: 2rem 2.5rem;
+  border-right: 1px solid #e0e0e0;
+}
+
+.form-title {
+  margin-bottom: 1.5rem;
+  font-size: 2rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.formgrid .field {
+  margin-bottom: 1.5rem;
+}
+
+.p-inputgroup {
+  border-radius: 8px;
+  overflow: hidden;
+  background: #f9f9f9;
+}
+
+.p-inputgroup-addon {
+  background: #007bff;
+  color: #ffffff;
+}
+
+.p-inputtext {
+  border: 1px solid #ced4da;
+  border-radius: 0;
+  padding: 0.75rem;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+}
+
+.p-inputtext:focus {
+  border-color: #007bff;
+  outline: none;
+}
+
+.p-error {
+  color: #d9534f;
+  font-size: 0.875rem;
+}
+
+.button-group {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.form-image {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem;
+  background: #f1f1f1;
+}
+
+.form-image img {
+  max-width: 90%;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}

@@ -1,0 +1,203 @@
+  <app-menue-bar></app-menue-bar>
+  <br><br><br>
+  <p-toolbar>
+    <div class="p-toolbar-group-start">
+      <p-splitButton [label]="selectedFileName" [model]="fileopp" styleClass="p-button-rounded mr-2 mb-2"></p-splitButton>
+      <p-toast></p-toast>
+      <i class="p-toolbar-separator pi pi-bars mr-2" style="vertical-align: middle"></i>
+    </div>
+    <p-toast></p-toast>
+
+    <!-- Create Directory Input and Button -->
+    <div>
+      <h3>Create New Directory</h3>
+      <p>
+        <span><b>Name:&nbsp;</b></span>
+        <input type="text" [(ngModel)]="newDirectoryName" pInputText pTooltip="Enter Directory Name" required>
+        <p-button icon="pi pi-check" label="Create" (click)="createDirectory()"></p-button>
+      </p>
+    </div>
+
+    <div class="p-toolbar-group-end">
+      <p-button icon="pi pi-search" class="mr-2" (click)="onSearchClick($event)"></p-button>
+
+      <p-overlayPanel #searchPanel>
+        <div class="p-fluid">
+          <div class="p-field">
+            <label for="searchInput">Search Files</label>
+            <p-autoComplete  [(ngModel)]="searchTerm"
+              [suggestions]="filteredFiles"
+              (completeMethod)="searchFiles($event)"
+              field="name"
+              [minLength]="1"
+              (onSelect)="onFileSelectedFromSearch($event)"
+              id="searchInput">
+            </p-autoComplete>
+
+            <!-- "No files found" message -->
+            <br>
+            <p *ngIf="notFound">No files found matching your search.</p>
+          </div>
+        </div>
+      </p-overlayPanel>
+
+      <p-button icon="pi pi-calendar" styleClass="p-button-success mr-2"></p-button>
+      <p-button icon="pi pi-times" styleClass="p-button-danger"></p-button>
+    </div>
+  </p-toolbar>
+
+  <p-confirmDialog></p-confirmDialog>
+
+  <p-treeTable [value]="files" [columns]="cols" selectionMode="single" [(selection)]="selectedNode2" dataKey="path" [scrollable]="true" [tableStyle]="{'min-width':'50rem'}" (onNodeSelect)="onNodeSelect($event)">
+
+  <ng-template pTemplate="caption">
+      <div class="flex">
+        <p-treeTableHeaderCheckbox></p-treeTableHeaderCheckbox>
+        <span class="ml-2">Toggle All</span>
+      </div>
+    </ng-template>
+    <ng-template pTemplate="header" let-columns>
+      <tr>
+        <th *ngFor="let col of columns">
+          {{ col.header }}
+        </th>
+        <th>Actions</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-rowNode let-rowData="rowData" let-columns="columns">
+      <tr [ttRow]="rowNode" [ttSelectableRow]="rowNode"
+          [pDraggable]="rowData.filetype !== 'directory' ? 'directory' : undefined"
+          (onDragStart)="onDragStart(rowData)"
+          (onDragEnd)="onDragEnd()"
+          [pDroppable]="rowData.filetype === 'directory' ? 'directory' : undefined"
+          (onDrop)="onDrop($event, rowData)">
+        <td *ngFor="let col of columns; let i = index"
+        >
+          <p-treeTableToggler [rowNode]="rowNode" *ngIf="i === 0"></p-treeTableToggler>
+          <p-treeTableCheckbox [value]="rowNode" *ngIf="i === 0"></p-treeTableCheckbox>
+
+          <ng-container *ngIf="i === 0">
+            <i *ngIf="rowData.filetype === 'directory'" class="pi pi-folder"></i>
+            <i *ngIf="rowData.filetype !== 'directory'" class="pi pi-file"></i>
+            {{ rowData[col.field] }}
+          </ng-container>
+
+          <ng-container *ngIf="i !== 0">
+            {{ rowData[col.field] }}
+          </ng-container>
+        </td>
+        <td>
+          <p-button
+            icon="pi pi-search"
+            styleClass="p-button-success"
+            [style]="{ 'margin-right': '.5em' }"
+            *ngIf="rowData.name !== 'Root'"
+            (click)="onSearchButtonClick(rowData)"
+          ></p-button>
+          <p-button
+            icon="pi pi-pencil"
+            (click)="displayUpdateDialog = true"
+            *ngIf="rowData.name !== 'Root'"
+          ></p-button>
+          <p-button
+            icon="pi pi-trash"
+            severity="danger"
+            (click)="confirmDelete(rowData)"
+            [style]="{ 'margin-left': '.5em' }"
+            *ngIf="rowData.name !== 'Root'"
+          ></p-button>
+          <p-button
+            icon="pi pi-download"
+            severity="warning"
+            (click)="downloadFile(rowData)"
+            [style]="{ 'margin-left': '.5em' }"
+            *ngIf="rowData.filetype !== 'directory'"
+          ></p-button>
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="summary">
+      <div style="text-align: left">
+        <p-button icon="pi pi-refresh" label="Reload" (click)="fetchFilesAndDirectories()"></p-button>
+      </div>
+    </ng-template>
+  </p-treeTable>
+
+  <p-dialog header="Update" [(visible)]="displayUpdateDialog" [modal]="true">
+    <div class="p-fluid">
+      <!-- Conditionally show file input if updating a file -->
+      <div *ngIf="selectedNode && selectedNode.data.filetype !== 'directory'" class="p-field">
+        <label for="file">New File (optional)</label>
+        <input id="file" type="file" (change)="onFileChange($event)">
+      </div>
+
+      <!-- Conditionally show name input -->
+      <div class="p-field">
+        <label for="newName">New Name</label>
+        <input id="newName" type="text" pInputText [(ngModel)]="updatedName">
+      </div>
+
+      <!-- Conditionally show parent input if updating a file -->
+      <div *ngIf="selectedNode && selectedNode.data.filetype !== 'directory'" class="p-field">
+        <label for="newParent">New Parent Directory (optional)</label>
+        <input id="newParent" type="number" pInputText [(ngModel)]="updatedParentId">
+      </div>
+    </div>
+    <p-footer>
+      <p-button label="Update" icon="pi pi-check" (click)="updateSelectedItem()"></p-button>
+      <p-button label="Cancel" icon="pi pi-times" (click)="displayUpdateDialog=false"></p-button>
+    </p-footer>
+  </p-dialog>
+
+  <p-dialog header="File Details" [(visible)]="displayFileDetailsDialog" [modal]="true" [style]="{ width: '500px' }">
+    <div class="p-fluid">
+      <div *ngIf="selectedFileDetails">
+        <div class="p-field">
+          <label>File Name:</label>
+          <p>{{ selectedFileDetails.name }}</p>
+        </div>
+        <div class="p-field" *ngIf="selectedFileDetails.filetype !== 'directory'">
+          <label>Size:</label>
+          <p>{{ selectedFileDetails.size }}</p>
+        </div>
+        <div class="p-field">
+          <label>Type:</label>
+          <p>{{ selectedFileDetails.filetype }}</p>
+        </div>
+        <div class="p-field">
+          <label>Path:</label>
+          <p>{{ selectedFileDetails.path }}</p>
+        </div>
+        <div class="p-field" *ngIf="selectedFileDetails.filetype === 'directory'">
+          <label>Children:</label>
+          <ul>
+            <li *ngFor="let childName of selectedFileDetails.children">{{ childName }}</li>
+          </ul>
+        </div>
+        <div class="p-field" *ngIf=" selectedFileDetails.filetype !== 'directory'">
+          <label>Content:</label>
+          <textarea
+            [(ngModel)]="editedFileContent"
+            rows="10"
+            cols="50"
+            pInputTextarea
+            [disabled]="!isEditing">
+          </textarea>
+        </div>
+        <div class="p-field" *ngIf="!isEditing && selectedFileDetails.filetype !== 'directory'">
+          <p-button label="Modify" icon="pi pi-pencil" (click)="enableEditing()"></p-button>
+        </div>
+        <div class="p-field" *ngIf="isEditing && selectedFileDetails.filetype !== 'directory'">
+          <p-button label="Update Content" icon="pi pi-save" (click)="confirmUpdate()"></p-button>
+        </div>
+      </div>
+    </div>
+    <p-footer>
+      <p-button label="Close" icon="pi pi-times" (click)="closeUpdateDialog()"></p-button>
+    </p-footer>
+    <!-- Confirmation Dialog -->
+    <p-confirmDialog></p-confirmDialog>
+  </p-dialog>
+
+
+

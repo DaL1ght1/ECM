@@ -1,0 +1,220 @@
+
+body {
+  font-family: 'Roboto', sans-serif;
+  background-color: #f4f4f4;
+  margin: 0;
+  padding: 0;
+  color: #333;
+}
+
+
+.p-toolbar {
+  background-color: #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 0.5rem 1rem;
+}
+
+.p-toolbar-group-start,
+.p-toolbar-group-end {
+  display: flex;
+  align-items: center;
+}
+
+.p-splitButton,
+.p-button {
+  border-radius: 5px;
+  padding: 0.5rem 1rem;
+}
+
+.p-button-success {
+  background-color: #28a745;
+  border-color: #28a745;
+}
+
+.p-button-danger {
+  background-color: #dc3545;
+  border-color: #dc3545;
+}
+
+.p-button .pi {
+  margin-right: 0.5rem;
+}
+
+
+input[type='text'],
+textarea {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #ced4da;
+  border-radius: 5px;
+  margin-bottom: 1rem;
+  box-sizing: border-box;
+}
+
+input[type='number'] {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #ced4da;
+  border-radius: 5px;
+  margin-bottom: 1rem;
+  box-sizing: border-box;
+}
+
+
+.p-treeTable {
+  margin-top: 1rem;
+  background-color: #ffffff;
+  border: 1px solid #e1e1e1;
+  border-radius: 5px;
+}
+
+.p-treeTable .pi-folder,
+.p-treeTable .pi-file {
+  margin-right: 0.5rem;
+}
+
+.p-treeTable-header {
+  background-color: #f7f7f7;
+  border-bottom: 1px solid #e1e1e1;
+}
+
+.p-treeTable-tbody > tr {
+  border-bottom: 1px solid #e1e1e1;
+}
+
+.p-treeTable-tbody > tr:hover {
+  background-color: #f4f4f4;
+}
+
+
+.p-dialog .p-fluid .p-field {
+  margin-bottom: 1rem;
+}
+
+.p-dialog-header {
+  background-color: #007bff;
+  color: #ffffff;
+  padding: 1rem;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+}
+
+.p-dialog-header .pi {
+  margin-right: 0.5rem;
+}
+
+.p-dialog-content {
+  padding: 1rem;
+}
+
+.p-dialog-footer {
+  padding: 1rem;
+  text-align: right;
+  border-top: 1px solid #e1e1e1;
+}
+
+.p-dialog-footer .p-button {
+  margin-left: 0.5rem;
+}
+
+.file-details-dialog p {
+  margin: 0;
+}
+
+textarea {
+  width: 100%;
+  border-radius: 5px;
+  border: 1px solid #ced4da;
+}
+
+
+.p-confirm-dialog {
+  border-radius: 5px;
+}
+
+
+.p-toast {
+  .p-toast-message {
+    background-color: #007bff;
+    border-color: #007bff;
+    color: #ffffff;
+  }
+  .p-toast-message-icon {
+    color: #ffffff;
+  }
+}
+
+
+h3 {
+  font-size: 1.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.flex {
+  display: flex;
+  align-items: center;
+}
+
+.ml-2 {
+  margin-left: 0.5rem;
+}
+
+.mr-2 {
+  margin-right: 0.5rem;
+}
+
+.mb-2 {
+  margin-bottom: 0.5rem;
+}
+.p-field {
+  display: flex;
+  align-items: center;
+}
+
+.p-field label {
+  margin-right: 20px;
+  font-weight: bold;
+}
+
+.p-draggable {
+  cursor: move;
+  background-color: #e9ecef;
+  border: 2px dashed #007bff;
+  border-radius: 8px;
+  padding: 0.5rem;
+  transition: background-color 0.3s, box-shadow 0.3s;
+}
+
+.p-draggable:hover {
+  background-color: #d1e7ff;
+  box-shadow: 0 4px 8px rgba(0, 123, 255, 0.2);
+}
+
+
+.p-draggable-enter {
+  background-color: #cce5ff;
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+  border: 2px solid #007bff;
+  opacity: 0.9;
+}
+
+
+.p-droppable-hover {
+  background-color: #f0f8ff;
+  border: 2px solid #007bff;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 123, 255, 0.2);
+  transition: background-color 0.3s, border-color 0.3s;
+}
+
+
+.p-treeTable .p-treeTable-tbody > tr:hover {
+  background-color: #e2f0ff;
+  transition: background-color 0.3s;
+}
+
+.p-treeTable .pi-folder,
+.p-treeTable .pi-file {
+  margin-right: 0.5rem;
+  color: #007bff;
+}

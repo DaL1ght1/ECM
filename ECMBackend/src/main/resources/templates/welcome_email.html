@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to ECM</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 10px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .welcome-message {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .content {
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+
+        .signature {
+            font-style: italic;
+            text-align: right;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Welcome to ECM!</h1>
+    <p class="welcome-message" th:text="'Dear ' + ${username} + ','"></p>
+    <div class="content">
+        <p>We are thrilled to welcome you to the ECM family! Your application has been reviewed and approved. You are
+            now a member of our team with the role of <span th:text="${role}"></span>.</p>
+        <p>This means you now have access to various resources and tools within our system. We encourage you to explore
+            the platform and familiarize yourself with its features.</p>
+        <p>We are excited to have you on board. If you have any questions or need assistance, please don't hesitate to
+            contact us at rouliassociation@gmail.com.</p>
+    </div>
+    <div class="signature">
+        <p>Welcome to ECM!<br>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,38 @@
+<div class="Maram">
+  <div class="form-container p-p-4 p-m-4 surface-card border-round shadow-2 flex-container">
+    <div class="form-content">
+      <h2 class="form-title">Sign In</h2>
+      <form (ngSubmit)="submitForm()">
+        <div class="formgrid grid p-fluid">
+          <div class="field col-12">
+            <div class="p-inputgroup">
+              <span class="p-inputgroup-addon">
+                <i class="pi pi-at"></i>
+              </span>
+              <input type="email" placeholder="Email" required class="p-inputtext p-component p-d-block w-full" [(ngModel)]="email" name="email">
+            </div>
+          </div>
+          <div class="field col-12">
+            <div class="p-inputgroup">
+              <span class="p-inputgroup-addon">
+                <i class="pi pi-lock"></i>
+              </span>
+              <input type="password" placeholder="Password" required class="p-inputtext p-component p-d-block w-full" [(ngModel)]="password" name="password">
+            </div>
+          </div>
+        </div>
+
+        <div class="button-group">
+          <p-button label="Sign In" type="submit" [raised]="true"></p-button>
+          <span><p-button label="Register" (click)="register()" [size]="'small'" [link]="true"></p-button></span>
+        </div>
+      </form>
+    </div>
+    <div class="form-image">
+      <img src="../assets/computer-security-with-login-password-padlock.jpg" alt="Sign In Image">
+    </div>
+  </div>
+
+  <!-- Toast container -->
+  <p-toast></p-toast>
+</div>
