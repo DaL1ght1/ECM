@@ -12,6 +12,7 @@ import com.bfi.ecm.Services.ServicesImpl.DirectoryServicesImpl;
 import com.bfi.ecm.Services.ServicesImpl.FileServicesImpl;
 import com.bfi.ecm.Services.ServicesImpl.FileStorageServiceImpl;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -41,6 +42,8 @@ public class FileStorageController {
     private final FileStorageProperties fileStorageProperties;
     private final FileStorageServiceImpl fileStorageServiceImpl;
     private final FileRepository fileRepository;
+    @Value("${path.base}")
+    String base;
 
 
     @PostMapping("/upload")
@@ -74,7 +77,7 @@ public class FileStorageController {
 
             // Create directories if they don't exist
             Files.createDirectories(destinationPath.getParent());
-            Path Base = Paths.get("C:/Users/khali/IdeaProjects/ECM/").toAbsolutePath().normalize();
+            Path Base = Paths.get(base).toAbsolutePath().normalize();
 
             Files.copy(file.getInputStream(), destinationPath, StandardCopyOption.REPLACE_EXISTING);
 
@@ -305,7 +308,7 @@ public class FileStorageController {
 
             String filetype = "text/plain"; // You can adjust this based on actual content type
             Long fileSize = Files.size(tempFile);
-            Path Base = Paths.get("C:/Users/khali/IdeaProjects/ECM/").toAbsolutePath().normalize();
+            Path Base = Paths.get(base).toAbsolutePath().normalize();
             Path filePath = Base.resolve(existingFile.getPath()).normalize();
             Path finalPath = Base.relativize(filePath).normalize().normalize();
             String toStringFile = finalPath.toString().replace("\\", "/");

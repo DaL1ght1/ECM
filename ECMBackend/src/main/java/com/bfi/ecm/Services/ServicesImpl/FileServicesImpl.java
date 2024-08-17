@@ -29,6 +29,8 @@ public class FileServicesImpl implements FileService {
     public final FileRepository fileRepository;
     private final TokensRepository tokensRepository;
     private final TokensRepository tokenRepository;
+    @Value("${path.base}")
+    String base;
 
 
     @Override
@@ -58,7 +60,7 @@ public class FileServicesImpl implements FileService {
 
             // Delete from storage
             try {
-                Path Base = Paths.get("C:/Users/khali/IdeaProjects/ECM/").toAbsolutePath().normalize();
+                Path Base = Paths.get(base).toAbsolutePath().normalize();
 
                 String filePath = fileEntity.getPath();
                 Path fullPath = Base.resolve(filePath);

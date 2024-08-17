@@ -7,6 +7,7 @@ import com.bfi.ecm.Repository.DirectoryRepository;
 import com.bfi.ecm.Repository.FileRepository;
 import com.bfi.ecm.Services.FileStorageService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,8 @@ public class FileStorageServiceImpl implements FileStorageService {
 
     private final FileRepository fileRepository;
     private final DirectoryRepository directoryRepository;
+    @Value("${path.base}")
+    String base;
 
     @Autowired
     public FileStorageServiceImpl(FileStorageProperties fileStorageProperties, FileRepository fileRepository, DirectoryRepository directoryRepository) {
@@ -43,7 +46,7 @@ public class FileStorageServiceImpl implements FileStorageService {
     public String storeFile(String content, Long id, String name) throws IOException {
         if (fileRepository.findById(id).isPresent()) {
             File file = fileRepository.findById(id).get();
-            Path Base = Paths.get("C:/Users/khali/IdeaProjects/ECM/").toAbsolutePath().normalize();
+            Path Base = Paths.get(base).toAbsolutePath().normalize();
             Path filePath = Base.resolve(file.getPath()).normalize();
             Files.write(filePath, content.getBytes());
             return file.getName();
@@ -58,7 +61,7 @@ public class FileStorageServiceImpl implements FileStorageService {
         if (fileRepository.findById(id).isPresent()) {
             file = fileRepository.findById(id).get();
             try {
-                Path Base = Paths.get("C:/Users/khali/IdeaProjects/ECM/").toAbsolutePath().normalize();
+                Path Base = Paths.get(base).toAbsolutePath().normalize();
                 Path filePath = Base.resolve(file.getPath()).normalize();
                 Resource resource = new UrlResource(filePath.toUri());
                 if (resource.exists()) {
@@ -77,7 +80,7 @@ public class FileStorageServiceImpl implements FileStorageService {
         if (fileRepository.findById(id).isPresent()) {
             File file = fileRepository.findById(id).get();
 
-            Path Base = Paths.get("C:/Users/khali/IdeaProjects/ECM/").toAbsolutePath().normalize();
+            Path Base = Paths.get(base).toAbsolutePath().normalize();
             Path filePath = Base.resolve(file.getPath()).normalize();
             return new String(Files.readAllBytes(filePath));
         }
@@ -87,7 +90,7 @@ public class FileStorageServiceImpl implements FileStorageService {
     public String getFilePath(Long id) {
         if (fileRepository.findById(id).isPresent()) {
             File file = fileRepository.findById(id).get();
-            Path Base = Paths.get("C:/Users/khali/IdeaProjects/ECM/").toAbsolutePath().normalize();
+            Path Base = Paths.get(base).toAbsolutePath().normalize();
             Path filePath = Base.resolve(file.getPath()).normalize();
             return filePath.toString();
         }
