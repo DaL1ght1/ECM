@@ -46,7 +46,7 @@ public class DirectoryServicesImpl implements DirectoryServices {
             directory.setPath(directory.getName());
         }
 
-        // Save the directory to the database
+        // Save the directory to the data 
         directoryRepository.save(directory);
     }
 
