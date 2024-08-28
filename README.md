@@ -1,5 +1,20 @@
 # ECM - Enterprise Content Management System
 
+## Table of Contents
+1. [Overview](#overview)
+2. [Key Features](#key-features)
+3. [Technologies Used](#technologies-used)
+4. [Application Properties](#application-properties)
+5. [Setup Instructions](#setup-instructions)
+   - [Clone the Repository](#clone-the-repository)
+   - [Backend Setup](#backend-setup)
+   - [Frontend Setup](#frontend-setup)
+   - [Access the Application](#access-the-application)
+6. [Contributions](#contributions)
+7. [License](#license)
+8. [Contact](#contact)
+
+
 ## Overview
 
 This repository contains a proof of concept (PoC) for an Enterprise Content Management (ECM) system developed as part of a summer internship project at BFI Group. The project demonstrates the technical feasibility and key features of an ECM, including document management, content search and indexing, and user and permission management.
