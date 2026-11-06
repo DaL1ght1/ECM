@@ -14,16 +14,16 @@ describe('AppComponent', () => {
     expect(app).toBeTruthy();
   });
 
-  it(`should have the 'ECMLastVersionfRONT' title`, () => {
+  it(`should have the 'ECM' title`, () => {
     const fixture = TestBed.createComponent(AppComponent);
     const app = fixture.componentInstance;
-    expect(app.title).toEqual('ECMLastVersionfRONT');
+    expect(app.title).toEqual('ECM');
   });
 
   it('should render title', () => {
     const fixture = TestBed.createComponent(AppComponent);
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain('Hello, ECMLastVersionfRONT');
+    expect(compiled.querySelector('h1')?.textContent).toContain('Hello, ECM');
   });
 });
