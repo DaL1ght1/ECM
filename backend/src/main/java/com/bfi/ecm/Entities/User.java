@@ -16,6 +16,8 @@ import java.security.Principal;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 @Getter
@@ -98,6 +100,9 @@ public class User extends BaseEntity implements UserDetails, Principal {
     }
 
     public String getFullName() {
-        return name + " " + lastName;
+        String fullName = Stream.of(name, lastName)
+                .filter(part -> part != null && !part.isBlank())
+                .collect(Collectors.joining(" "));
+        return fullName.isEmpty() ? email : fullName;
     }
 }

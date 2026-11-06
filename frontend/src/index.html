@@ -5,12 +5,15 @@
   <title>ECM</title>
   <base href="/">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <script>
+    try {
+      document.querySelector('meta[name="color-scheme"]').content = localStorage.getItem('ecm.color-scheme') ?? 'light dark';
+    } catch (e) {}
+  </script>
   <link rel="icon" type="image/x-icon" href="favicon.ico">
-  <link rel="stylesheet" href="https://unpkg.com/primeflex@latest/primeflex.css">
-
 </head>
 <body>
   <app-root></app-root>
 </body>
-
 </html>

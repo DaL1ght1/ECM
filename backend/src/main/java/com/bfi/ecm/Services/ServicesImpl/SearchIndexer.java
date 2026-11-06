@@ -22,6 +22,8 @@ import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.elasticsearch.core.IndexOperations;
+import org.springframework.data.elasticsearch.core.query.IndexQuery;
+import org.springframework.data.elasticsearch.core.query.IndexQueryBuilder;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -30,6 +32,8 @@ import org.springframework.transaction.event.TransactionalEventListener;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import java.io.IOException;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -137,19 +141,38 @@ public class SearchIndexer {
     private boolean syncOne(String documentId) {
         try {
             ensureIndex();
+            long readVersion = ChronoUnit.MICROS.between(Instant.EPOCH, Instant.now());
             Optional<Document> document = documentRepository.findByUuid(documentId);
             if (document.isEmpty() || document.get().isDeleted()) {
                 operations.delete(documentId, SearchDocument.class);
                 return true;
             }
-            operations.save(toSearchDocument(document.get()));
-            documentRepository.markIndexed(document.get().getId(), document.get().getLockVersion());
+            Document current = document.get();
+            IndexQuery query = new IndexQueryBuilder()
+                    .withId(current.getUuid())
+                    .withObject(toSearchDocument(current))
+                    .withVersion(readVersion)
+                    .build();
+            operations.index(query, operations.getIndexCoordinatesFor(SearchDocument.class));
+            documentRepository.markIndexed(current.getId(), current.getLockVersion());
             return true;
         } catch (DataAccessException e) {
+            if (isStaleWrite(e)) {
+                return true;
+            }
             indexReady.set(false);
             log.warn("Could not sync document {} to the search index: {}", documentId, e.getMessage());
             return false;
         }
+    }
+
+    private static boolean isStaleWrite(DataAccessException e) {
+        for (Throwable cause = e; cause != null; cause = cause.getCause()) {
+            if (cause.getMessage() != null && cause.getMessage().contains("version_conflict_engine_exception")) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private SearchDocument toSearchDocument(Document document) {

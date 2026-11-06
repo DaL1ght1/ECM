@@ -11,6 +11,7 @@ import com.bfi.ecm.Mappers.DocumentDto;
 import com.bfi.ecm.Mappers.FolderContentsDto;
 import com.bfi.ecm.Mappers.FolderDto;
 import com.bfi.ecm.Mappers.PermissionDto;
+import com.bfi.ecm.Mappers.UserSummary;
 import com.bfi.ecm.Repository.DocumentRepository;
 import com.bfi.ecm.Repository.FolderPermissionRepository;
 import com.bfi.ecm.Repository.FolderRepository;
@@ -177,7 +178,7 @@ public class FolderServiceImpl implements FolderService {
     @Transactional(readOnly = true)
     public List<PermissionDto> permissions(String folderId) {
         Folder folder = findManageableFolder(folderId);
-        return permissionRepository.findByFolder(folder).stream().map(PermissionDto::fromEntity).toList();
+        return permissionRepository.findByFolder(folder).stream().map(this::toDto).toList();
     }
 
     @Override
@@ -200,9 +201,16 @@ public class FolderServiceImpl implements FolderService {
             permission.setAccess(dto.access());
             return permission;
         }).toList();
-        List<PermissionDto> result = permissionRepository.saveAll(saved).stream().map(PermissionDto::fromEntity).toList();
+        List<PermissionDto> result = permissionRepository.saveAll(saved).stream().map(this::toDto).toList();
         reindexSubtree(folder);
         return result;
+    }
+
+    private PermissionDto toDto(FolderPermission permission) {
+        String displayName = permission.getPrincipalType() == PrincipalType.USER
+                ? userRepository.findByUuid(permission.getPrincipal()).map(user -> UserSummary.fromEntity(user).name()).orElse("Unknown user")
+                : permission.getPrincipal();
+        return PermissionDto.fromEntity(permission, displayName);
     }
 
     private Folder findFolder(String folderId) {

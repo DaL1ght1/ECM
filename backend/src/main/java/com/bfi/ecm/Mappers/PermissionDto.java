@@ -9,9 +9,10 @@ import jakarta.validation.constraints.NotNull;
 public record PermissionDto(
         @NotNull PrincipalType principalType,
         @NotBlank String principal,
-        @NotNull AccessLevel access) {
+        @NotNull AccessLevel access,
+        String displayName) {
 
-    public static PermissionDto fromEntity(FolderPermission permission) {
-        return new PermissionDto(permission.getPrincipalType(), permission.getPrincipal(), permission.getAccess());
+    public static PermissionDto fromEntity(FolderPermission permission, String displayName) {
+        return new PermissionDto(permission.getPrincipalType(), permission.getPrincipal(), permission.getAccess(), displayName);
     }
 }

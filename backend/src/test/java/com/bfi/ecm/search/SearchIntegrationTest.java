@@ -5,6 +5,7 @@ import com.bfi.ecm.Entities.User;
 import com.bfi.ecm.Repository.DocumentRepository;
 import com.bfi.ecm.Repository.UserRepository;
 import com.bfi.ecm.Services.ServicesImpl.JwtServiceImpl;
+import com.bfi.ecm.Services.ServicesImpl.SearchIndexer;
 import com.bfi.ecm.support.PostgresIntegrationTest;
 import com.jayway.jsonpath.JsonPath;
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -19,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
+import org.springframework.data.elasticsearch.core.query.IndexQueryBuilder;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
@@ -78,6 +80,9 @@ class SearchIntegrationTest extends PostgresIntegrationTest {
 
     @Autowired
     private ElasticsearchOperations operations;
+
+    @Autowired
+    private SearchIndexer searchIndexer;
 
     private User alice;
     private User bob;
@@ -147,6 +152,34 @@ class SearchIntegrationTest extends PostgresIntegrationTest {
                 .andExpect(status().isNoContent());
         awaitSearch(alice, "zeppelin", json -> !ids(json).contains(id));
         assertThat(operations.get(id, SearchDocument.class)).isNull();
+    }
+
+    @Test
+    void newestVersionWinsWhenIndexJobsRace() throws Exception {
+        String id = upload(alice, "contrat-cadre.txt", "text/plain", "durée initiale: douze mois quokka".getBytes(StandardCharsets.UTF_8), null);
+        mockMvc.perform(multipart("/api/v1/documents/" + id + "/versions")
+                        .file(new MockMultipartFile("file", "contrat-cadre.txt", "text/plain", "durée révisée: vingt-quatre mois narval".getBytes(StandardCharsets.UTF_8)))
+                        .header(HttpHeaders.AUTHORIZATION, bearer(alice)))
+                .andExpect(status().isOk());
+
+        awaitSearch(alice, "narval", json -> ids(json).contains(id));
+        Thread.sleep(2500);
+        assertThat(ids(search(alice, "quokka"))).doesNotContain(id);
+        assertThat(operations.get(id, SearchDocument.class).getVersionNumber()).isEqualTo(2);
+    }
+
+    @Test
+    void staleIndexWritesAreRejectedWithoutOverwritingNewerContent() throws Exception {
+        String id = upload(alice, "note-version.txt", "text/plain", "contenu actuel ornithorynque".getBytes(StandardCharsets.UTF_8), null);
+        awaitSearch(alice, "ornithorynque", json -> ids(json).contains(id));
+
+        SearchDocument newer = operations.get(id, SearchDocument.class);
+        newer.setContent("contenu futur axolotl");
+        operations.index(new IndexQueryBuilder().withId(id).withObject(newer).withVersion(Long.MAX_VALUE / 2).build(),
+                operations.getIndexCoordinatesFor(SearchDocument.class));
+
+        assertThat(searchIndexer.sync(List.of(id))).isTrue();
+        assertThat(operations.get(id, SearchDocument.class).getContent()).isEqualTo("contenu futur axolotl");
     }
 
     private String awaitSearch(User user, String query, Predicate<String> condition) throws Exception {

@@ -20,7 +20,8 @@ import java.util.List;
 @org.springframework.data.elasticsearch.annotations.Document(
         indexName = "#{@searchIndexName}",
         createIndex = false,
-        writeTypeHint = WriteTypeHint.FALSE)
+        writeTypeHint = WriteTypeHint.FALSE,
+        versionType = org.springframework.data.elasticsearch.annotations.Document.VersionType.EXTERNAL_GTE)
 @Setting(settingPath = "elasticsearch/document-settings.json")
 @Mapping(mappingPath = "elasticsearch/document-mappings.json")
 public class SearchDocument {

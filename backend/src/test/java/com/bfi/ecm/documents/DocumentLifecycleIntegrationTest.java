@@ -233,6 +233,25 @@ class DocumentLifecycleIntegrationTest extends PostgresIntegrationTest {
                 .andExpect(jsonPath("$[*].id", hasItem(read(uploaded, "$.id"))));
     }
 
+    @Test
+    void userDirectoryFindsActiveColleaguesButNotSelfOrInactiveUsers() throws Exception {
+        String marker = "Zed" + UUID.randomUUID().toString().substring(0, 8);
+        User colleague = userRepository.save(User.builder().email(marker.toLowerCase() + "@ecm.test").name(marker).lastName("Colleague")
+                .password("unused").role("USER").enabled(true).build());
+        userRepository.save(User.builder().email(marker.toLowerCase() + ".banned@ecm.test").name(marker).lastName("Banned")
+                .password("unused").role("USER").enabled(true).accountLocked(true).build());
+        User self = userRepository.save(User.builder().email(marker.toLowerCase() + ".self@ecm.test").name(marker).lastName("Self")
+                .password("unused").role("USER").enabled(true).build());
+
+        mockMvc.perform(get("/api/v1/user/directory").param("q", marker.toLowerCase()).header(HttpHeaders.AUTHORIZATION, bearer(self)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].id").value(colleague.getUuid()))
+                .andExpect(jsonPath("$[0].name").value(marker + " Colleague"))
+                .andExpect(jsonPath("$[0].password").doesNotExist())
+                .andExpect(jsonPath("$[0].role").doesNotExist());
+    }
+
     private String createFolder(User owner, String name) throws Exception {
         return createFolder(owner, name, null);
     }

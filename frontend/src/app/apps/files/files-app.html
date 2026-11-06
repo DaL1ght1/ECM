@@ -1,0 +1,222 @@
+<ecm-window [window]="window()">
+  <div toolbar class="flex items-center gap-1">
+    <div class="flex items-center">
+      <button type="button" class="icon-btn" aria-label="Back" [disabled]="historyIndex() <= 0" (click)="back()">
+        <ng-icon name="lucideChevronLeft" size="18" />
+      </button>
+      <button type="button" class="icon-btn" aria-label="Forward" [disabled]="historyIndex() >= history().length - 1" (click)="forward()">
+        <ng-icon name="lucideChevronRight" size="18" />
+      </button>
+    </div>
+    <div class="mx-1 flex rounded-lg bg-hover p-0.5" role="group" aria-label="View">
+      <button type="button" class="icon-btn size-7" aria-label="Icons" [attr.aria-pressed]="view() === 'grid'" (click)="setView('grid')">
+        <ng-icon name="lucideLayoutGrid" size="15" />
+      </button>
+      <button type="button" class="icon-btn size-7" aria-label="List" [attr.aria-pressed]="view() === 'list'" (click)="setView('list')">
+        <ng-icon name="lucideList" size="15" />
+      </button>
+    </div>
+    <button type="button" class="icon-btn" aria-label="New folder" title="New folder" [disabled]="!canWrite()" (click)="newFolder()">
+      <ng-icon name="lucideFolderPlus" size="17" />
+    </button>
+    <button type="button" class="icon-btn" aria-label="Upload files" title="Upload files" [disabled]="!canWrite()" (click)="pickFiles()">
+      <ng-icon name="lucideUpload" size="17" />
+    </button>
+    @if (current(); as folder) {
+      @if (canManage(folder)) {
+        <button type="button" class="icon-btn" aria-label="Share folder" title="Share folder" (click)="sharing.set(folder)">
+          <ng-icon name="lucideUserPlus" size="17" />
+        </button>
+      }
+    }
+    <label class="relative ml-1 hidden sm:block">
+      <ng-icon name="lucideSearch" size="13" class="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-ink-faint" />
+      <input class="field h-7 w-40 pl-7 text-[12px]" type="search" placeholder="Filter" aria-label="Filter this folder"
+             [value]="filterText()" (input)="filterText.set($any($event.target).value)" />
+    </label>
+  </div>
+
+  <div class="flex min-h-0 flex-1">
+    <aside class="hidden w-48 shrink-0 flex-col gap-4 overflow-y-auto border-r border-line bg-sidebar p-2.5 md:flex" aria-label="Sidebar">
+      <section>
+        <h3 class="sidebar-heading">Favorites</h3>
+        <button type="button" class="sidebar-item"
+                [class.active]="!isShared() && !current()"
+                [class.drop]="dropTarget() === 'home'"
+                (click)="openFolder(null)"
+                (dragover)="onTargetDragOver('home', $event)" (dragleave)="onTargetDragLeave('home')" (drop)="onTargetDrop(null, $event)">
+          <ng-icon name="lucideHouse" size="15" class="text-accent" /> Home
+        </button>
+        <button type="button" class="sidebar-item" [class.active]="isShared()" (click)="navigate({ type: 'shared' })">
+          <ng-icon name="lucideUsersRound" size="15" class="text-[#12a594]" /> Shared with me
+        </button>
+      </section>
+      <section>
+        <h3 class="sidebar-heading">Locations</h3>
+        <button type="button" class="sidebar-item" (click)="launcher.trash()">
+          <ng-icon name="lucideTrash2" size="15" class="text-ink-faint" /> Trash
+        </button>
+      </section>
+    </aside>
+
+    <main class="relative flex min-w-0 flex-1 flex-col bg-pane"
+          (dragenter)="onPaneDragEnter($event)" (dragover)="onPaneDragOver($event)"
+          (dragleave)="onPaneDragLeave()" (drop)="onPaneDrop($event)">
+      <nav class="flex h-9 shrink-0 items-center gap-0.5 overflow-x-auto border-b border-line px-3 text-[12.5px]" aria-label="Path">
+        @if (isShared()) {
+          <span class="crumb active"><ng-icon name="lucideUsersRound" size="13" /> Shared with me</span>
+        } @else {
+          <button type="button" class="crumb" [class.active]="!current()" [class.drop]="dropTarget() === 'crumb:home'"
+                  (click)="openFolder(null)"
+                  (dragover)="onTargetDragOver('crumb:home', $event)" (dragleave)="onTargetDragLeave('crumb:home')" (drop)="onTargetDrop(null, $event)">
+            <ng-icon name="lucideHouse" size="13" /> Home
+          </button>
+          @for (crumb of breadcrumbs(); track crumb.id; let last = $last) {
+            <ng-icon name="lucideChevronRight" size="12" class="shrink-0 text-ink-faint" />
+            <button type="button" class="crumb" [class.active]="last" [class.drop]="dropTarget() === 'crumb:' + crumb.id"
+                    (click)="openFolder(crumb.id)"
+                    (dragover)="onTargetDragOver('crumb:' + crumb.id, $event)" (dragleave)="onTargetDragLeave('crumb:' + crumb.id)"
+                    (drop)="onTargetDrop(crumb.id, $event)">
+              {{ crumb.name }}
+            </button>
+          }
+        }
+        @if (current()?.access === 'READ') {
+          <span class="badge ml-auto shrink-0"><ng-icon name="lucideEye" size="11" class="mr-1" /> View only</span>
+        }
+      </nav>
+
+      <div #content class="relative min-h-0 flex-1 overflow-auto outline-none" tabindex="0" aria-label="Folder contents"
+           (keydown)="onKeydown($event)" (click)="clearSelection($event)" (contextmenu)="backgroundMenu($event)">
+        @if (loading() && !items().length) {
+          <div class="grid-view p-4" aria-hidden="true">
+            @for (placeholder of [1, 2, 3, 4, 5, 6]; track placeholder) {
+              <div class="flex flex-col items-center gap-2 p-2">
+                <div class="size-14 animate-pulse rounded-xl bg-hover"></div>
+                <div class="h-2.5 w-16 animate-pulse rounded bg-hover"></div>
+              </div>
+            }
+          </div>
+        } @else if (error()) {
+          <div class="grid h-full place-items-center p-8 text-center">
+            <div class="flex max-w-xs flex-col items-center gap-3">
+              <ng-icon name="lucideFolderX" size="40" class="text-ink-faint" />
+              <p class="font-semibold">{{ error() }}</p>
+              <button type="button" class="btn" (click)="openFolder(null)">Go Home</button>
+            </div>
+          </div>
+        } @else if (!items().length) {
+          <div class="pointer-events-none grid h-full place-items-center p-8 text-center" (click)="clearSelection($event)">
+            <div class="flex max-w-xs flex-col items-center gap-3">
+              <ecm-file-icon [folder]="true" [shared]="isShared()" [size]="72" class="opacity-70" />
+              @if (filterText()) {
+                <p class="font-semibold">Nothing matches “{{ filterText() }}”</p>
+              } @else if (isShared()) {
+                <p class="font-semibold">Nothing has been shared with you yet</p>
+                <p class="text-ink-soft">Folders that colleagues share with you or your role appear here.</p>
+              } @else {
+                <p class="font-semibold">This folder is empty</p>
+                @if (canWrite()) {
+                  <p class="text-ink-soft">Drop files here, or</p>
+                  <div class="pointer-events-auto flex gap-2">
+                    <button type="button" class="btn btn-primary" (click)="pickFiles()"><ng-icon name="lucideUpload" size="14" /> Upload</button>
+                    <button type="button" class="btn" (click)="newFolder()"><ng-icon name="lucideFolderPlus" size="14" /> New Folder</button>
+                  </div>
+                }
+              }
+            </div>
+          </div>
+        } @else if (view() === 'grid') {
+          <div class="grid-view p-3" role="listbox" aria-multiselectable="true" aria-label="Items" (click)="clearSelection($event)">
+            @for (item of items(); track item.key) {
+              <div class="tile" role="option" tabindex="-1" draggable="true"
+                   [attr.data-key]="item.key"
+                   [attr.aria-selected]="selection().has(item.key)"
+                   [class.selected]="selection().has(item.key)"
+                   [class.drop]="dropTarget() === item.key"
+                   (click)="select(item, $event)"
+                   (dblclick)="open(item)"
+                   (contextmenu)="itemMenu(item, $event)"
+                   (dragstart)="onItemDragStart(item, $event)"
+                   (dragover)="item.type === 'folder' && onTargetDragOver(item.key, $event)"
+                   (dragleave)="onTargetDragLeave(item.key)"
+                   (drop)="item.type === 'folder' && onTargetDrop(item.id, $event)">
+                <ecm-file-icon [name]="item.name" [mimeType]="item.document?.currentVersion?.mimeType"
+                               [folder]="item.type === 'folder'" [shared]="isShared()" [size]="56" />
+                <span class="tile-name">{{ item.name }}</span>
+                @if (item.document?.currentVersion; as version) {
+                  @if (version.versionNumber > 1) {
+                    <span class="badge badge-accent absolute right-2 top-2 h-4 px-1.5 text-[9.5px]">v{{ version.versionNumber }}</span>
+                  }
+                }
+              </div>
+            }
+          </div>
+        } @else {
+          <table class="w-full table-fixed border-separate border-spacing-0 text-left text-[12.5px]" role="grid" aria-label="Items">
+            <thead class="sticky top-0 z-[1] bg-chrome backdrop-blur">
+              <tr class="text-[11.5px] text-ink-faint">
+                <th class="w-[44%] border-b border-line py-1.5 pl-4 font-medium">Name</th>
+                <th class="w-[10%] border-b border-line font-medium">Version</th>
+                <th class="w-[12%] border-b border-line font-medium">Size</th>
+                <th class="w-[17%] border-b border-line font-medium">Modified</th>
+                <th class="w-[17%] border-b border-line pr-4 font-medium">Owner</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (item of items(); track item.key; let odd = $odd) {
+                <tr class="row" tabindex="-1" draggable="true"
+                    [attr.data-key]="item.key"
+                    [attr.aria-selected]="selection().has(item.key)"
+                    [class.odd]="odd"
+                    [class.selected]="selection().has(item.key)"
+                    [class.drop]="dropTarget() === item.key"
+                    (click)="select(item, $event)"
+                    (dblclick)="open(item)"
+                    (contextmenu)="itemMenu(item, $event)"
+                    (dragstart)="onItemDragStart(item, $event)"
+                    (dragover)="item.type === 'folder' && onTargetDragOver(item.key, $event)"
+                    (dragleave)="onTargetDragLeave(item.key)"
+                    (drop)="item.type === 'folder' && onTargetDrop(item.id, $event)">
+                  <td class="py-1.5 pl-4">
+                    <span class="flex min-w-0 items-center gap-2.5">
+                      <ecm-file-icon [name]="item.name" [mimeType]="item.document?.currentVersion?.mimeType"
+                                     [folder]="item.type === 'folder'" [shared]="isShared()" [size]="20" />
+                      <span class="truncate">{{ item.name }}</span>
+                    </span>
+                  </td>
+                  <td class="cell-muted">{{ item.document?.currentVersion ? 'v' + item.document?.currentVersion?.versionNumber : '—' }}</td>
+                  <td class="cell-muted">{{ item.type === 'folder' ? '—' : formatBytes(item.size) }}</td>
+                  <td class="cell-muted">{{ formatWhen(item.modified) }}</td>
+                  <td class="cell-muted truncate pr-4">{{ item.owner }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        }
+      </div>
+
+      @if (dropActive()) {
+        <div class="pointer-events-none absolute inset-2 top-11 grid place-items-center rounded-xl border-2 border-dashed border-accent bg-accent-soft">
+          <div class="flex flex-col items-center gap-2 text-accent">
+            <ng-icon name="lucideCloudUpload" size="40" />
+            <p class="font-semibold">Drop to upload to {{ current()?.name ?? 'Home' }}</p>
+          </div>
+        </div>
+      }
+
+      <footer class="flex h-7 shrink-0 items-center gap-2 border-t border-line px-3 text-[11.5px] text-ink-faint">
+        <span>{{ status() }}</span>
+        @if (loading() && items().length) {
+          <span class="ml-auto size-3 animate-spin rounded-full border-2 border-line-strong border-t-accent"></span>
+        }
+      </footer>
+    </main>
+  </div>
+
+  <input #fileInput type="file" multiple hidden (change)="onFilesPicked($event)" />
+
+  @if (sharing(); as folder) {
+    <ecm-share-dialog [folder]="folder" (closed)="sharing.set(null)" />
+  }
+</ecm-window>
