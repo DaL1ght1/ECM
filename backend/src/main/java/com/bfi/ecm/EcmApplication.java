@@ -1,0 +1,29 @@
+package com.bfi.ecm;
+
+import com.bfi.ecm.Configurations.AdminProperties;
+import com.bfi.ecm.Configurations.SearchProperties;
+import com.bfi.ecm.Configurations.StorageProperties;
+import com.bfi.ecm.Configurations.security.JwtProperties;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.annotation.EnableScheduling;
+
+@SpringBootApplication
+@EnableConfigurationProperties({
+        StorageProperties.class,
+        JwtProperties.class,
+        AdminProperties.class,
+        SearchProperties.class
+})
+@EnableAsync
+@EnableScheduling
+public class EcmApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(EcmApplication.class, args);
+    }
+
+
+}
