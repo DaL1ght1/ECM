@@ -77,7 +77,7 @@ export class AuthService {
   }
 
   login(email: string, password: string): Observable<any> {
-    return this.http.post<any>(`${environment.apiUrl}/bfi/v1/auth/authenticate`, { email, password }, { withCredentials: true }).pipe(
+    return this.http.post<any>(`${environment.apiUrl}/api/v1/auth/authenticate`, { email, password }, { withCredentials: true }).pipe(
       tap(response => {
         if (response && response.token) {
           this.saveToken(response.token,response.role);
@@ -100,13 +100,9 @@ export class AuthService {
     );
   }
 
-  /**
-   * Exchanges the HttpOnly refresh cookie for a new access token.
-   * Concurrent callers share one request: the backend rotates the cookie and treats a second use as token theft.
-   */
   refresh(): Observable<string> {
     if (!this.refreshInFlight) {
-      this.refreshInFlight = this.http.post<any>(`${environment.apiUrl}/bfi/v1/auth/refresh`, null, { withCredentials: true }).pipe(
+      this.refreshInFlight = this.http.post<any>(`${environment.apiUrl}/api/v1/auth/refresh`, null, { withCredentials: true }).pipe(
         map(response => {
           this.saveToken(response.token, response.role);
           const user = this.loadUserFromToken();
@@ -123,7 +119,7 @@ export class AuthService {
   }
 
   logout(): void {
-    this.http.post(`${environment.apiUrl}/bfi/v1/auth/logout`, null, { withCredentials: true }).subscribe({ error: () => {} });
+    this.http.post(`${environment.apiUrl}/api/v1/auth/logout`, null, { withCredentials: true }).subscribe({ error: () => {} });
     this.messageService.add({ severity: 'success', summary: 'Logout Success', detail: 'Logged out successfully.' });
     setTimeout(() => {
       this.removeToken();

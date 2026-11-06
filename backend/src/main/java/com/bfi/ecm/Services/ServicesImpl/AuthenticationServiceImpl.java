@@ -132,7 +132,6 @@ public class AuthenticationServiceImpl implements com.bfi.ecm.Services.Authentic
     @Override
     public AuthSession authenticate(AuthenticationRequest request) {
         try {
-            // DaoAuthenticationProvider rejects locked (LockedException) and unapproved (DisabledException) accounts.
             var auth = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
                             request.getEmail(),

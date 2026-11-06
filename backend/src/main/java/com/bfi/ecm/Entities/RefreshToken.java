@@ -7,10 +7,6 @@ import lombok.Setter;
 
 import java.time.Instant;
 
-/**
- * One refresh token. Only the SHA-256 hash is stored. Tokens created by rotating
- * each other share a {@code familyId}, so a reused (stolen) token can revoke the whole session.
- */
 @Getter
 @Setter
 @NoArgsConstructor

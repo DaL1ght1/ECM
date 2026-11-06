@@ -45,7 +45,6 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
         Instant now = Instant.now();
 
         if (current.getRevokedAt() != null) {
-            // An already-rotated token was presented again: assume it was stolen and end the whole session.
             log.warn("Refresh token reuse detected for user {}", current.getUser().getUuid());
             refreshTokenRepository.revokeFamily(current.getFamilyId(), now);
             throw new InvalidRefreshTokenException("Refresh token reuse detected");

@@ -8,7 +8,7 @@ export class AuthInterceptor implements HttpInterceptor {
   constructor(private authService: AuthService) {}
 
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    if (request.url.includes('/bfi/v1/auth/')) {
+    if (request.url.includes('/api/v1/auth/')) {
       return next.handle(request);
     }
     return next.handle(this.withToken(request, this.authService.token)).pipe(
@@ -16,7 +16,6 @@ export class AuthInterceptor implements HttpInterceptor {
         if (error.status !== 401) {
           return throwError(() => error);
         }
-        // Access token expired: refresh once via the HttpOnly cookie, then retry the original request.
         return this.authService.refresh().pipe(
           switchMap(token => next.handle(this.withToken(request, token))),
           catchError(refreshError => {

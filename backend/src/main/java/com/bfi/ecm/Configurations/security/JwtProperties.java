@@ -7,9 +7,6 @@ import org.springframework.validation.annotation.Validated;
 
 import java.time.Duration;
 
-/**
- * JWT settings. {@code secret} is a Base64 value of at least 32 bytes, supplied through the JWT_SECRET env var.
- */
 @Validated
 @ConfigurationProperties(prefix = "jwt")
 public record JwtProperties(

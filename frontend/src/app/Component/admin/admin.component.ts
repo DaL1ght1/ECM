@@ -21,7 +21,7 @@ export class AdminComponent implements OnInit {
     {label: 'Engineer', value: 'ENGINEER'},
     {label: 'Manager', value: 'MANAGER'},
   ];
-  private apiUrl = 'http://localhost:8090/bfi/v1/admin';
+  private apiUrl = 'http://localhost:8090/api/v1/admin';
 
   constructor(
     private adminService: AdminService,

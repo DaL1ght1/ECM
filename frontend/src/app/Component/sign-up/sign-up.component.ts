@@ -132,7 +132,7 @@ export class SignUpComponent implements OnInit {
   }
 
   onSubmit() {
-    this.http.get(`${environment.apiUrl}/bfi/v1/auth/activate-account`, {
+    this.http.get(`${environment.apiUrl}/api/v1/auth/activate-account`, {
       params: { token: this.tokens }
     }).subscribe({
       next: () => {

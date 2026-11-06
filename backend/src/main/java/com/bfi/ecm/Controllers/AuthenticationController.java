@@ -26,13 +26,13 @@ import java.io.IOException;
 import java.time.Duration;
 
 @RestController
-@RequestMapping("bfi/v1/auth")
+@RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
 @Tag(name = "Authentication")
 public class AuthenticationController {
 
     private static final String REFRESH_COOKIE = "refresh_token";
-    private static final String REFRESH_COOKIE_PATH = "/bfi/v1/auth";
+    private static final String REFRESH_COOKIE_PATH = "/api/v1/auth";
 
     private final AuthenticationService authService;
     private final JwtProperties jwtProperties;

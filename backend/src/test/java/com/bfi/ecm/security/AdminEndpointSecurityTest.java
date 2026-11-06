@@ -35,9 +35,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @TestPropertySource(properties = "jwt.secret=" + AdminEndpointSecurityTest.SECRET)
 class AdminEndpointSecurityTest {
 
-    // Base64 of "0123456789abcdef0123456789abcdef" (32 bytes)
     static final String SECRET = "MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=";
-    private static final String ALL_USERS = "/bfi/v1/admin/all-users";
+    private static final String ALL_USERS = "/api/v1/admin/all-users";
 
     @Autowired
     private MockMvc mockMvc;

@@ -46,7 +46,7 @@ class AuthenticationControllerTest {
     void loginReturnsAccessTokenAndSetsHttpOnlyRefreshCookie() throws Exception {
         given(authService.authenticate(any())).willReturn(SESSION);
 
-        mockMvc.perform(post("/bfi/v1/auth/authenticate")
+        mockMvc.perform(post("/api/v1/auth/authenticate")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"email\":\"user@ecm.test\",\"password\":\"password123\"}"))
                 .andExpect(status().isOk())
@@ -58,12 +58,12 @@ class AuthenticationControllerTest {
                         containsString("HttpOnly"),
                         containsString("Secure"),
                         containsString("SameSite=Strict"),
-                        containsString("Path=/bfi/v1/auth"))));
+                        containsString("Path=/api/v1/auth"))));
     }
 
     @Test
     void refreshWithoutCookieIsUnauthorized() throws Exception {
-        mockMvc.perform(post("/bfi/v1/auth/refresh"))
+        mockMvc.perform(post("/api/v1/auth/refresh"))
                 .andExpect(status().isUnauthorized());
     }
 
@@ -71,7 +71,7 @@ class AuthenticationControllerTest {
     void refreshRotatesCookie() throws Exception {
         given(authService.refresh("old-refresh-token")).willReturn(SESSION);
 
-        mockMvc.perform(post("/bfi/v1/auth/refresh").cookie(new Cookie("refresh_token", "old-refresh-token")))
+        mockMvc.perform(post("/api/v1/auth/refresh").cookie(new Cookie("refresh_token", "old-refresh-token")))
                 .andExpect(status().isOk())
                 .andExpect(header().string(HttpHeaders.SET_COOKIE, containsString("refresh_token=new-refresh-token")));
     }
@@ -80,14 +80,14 @@ class AuthenticationControllerTest {
     void rejectedRefreshClearsCookie() throws Exception {
         given(authService.refresh("stolen")).willThrow(new InvalidRefreshTokenException("Refresh token reuse detected"));
 
-        mockMvc.perform(post("/bfi/v1/auth/refresh").cookie(new Cookie("refresh_token", "stolen")))
+        mockMvc.perform(post("/api/v1/auth/refresh").cookie(new Cookie("refresh_token", "stolen")))
                 .andExpect(status().isUnauthorized())
                 .andExpect(header().string(HttpHeaders.SET_COOKIE, containsString("Max-Age=0")));
     }
 
     @Test
     void logoutRevokesAndClearsCookie() throws Exception {
-        mockMvc.perform(post("/bfi/v1/auth/logout").cookie(new Cookie("refresh_token", "current")))
+        mockMvc.perform(post("/api/v1/auth/logout").cookie(new Cookie("refresh_token", "current")))
                 .andExpect(status().isNoContent())
                 .andExpect(header().string(HttpHeaders.SET_COOKIE, containsString("Max-Age=0")));
 

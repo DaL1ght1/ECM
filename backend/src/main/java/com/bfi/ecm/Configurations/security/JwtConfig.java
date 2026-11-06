@@ -49,9 +49,6 @@ public class JwtConfig {
         return decoder;
     }
 
-    /**
-     * Maps the {@code roles} claim (e.g. ["ADMIN"]) to ROLE_ADMIN so hasRole('ADMIN') works.
-     */
     @Bean
     public JwtAuthenticationConverter jwtAuthenticationConverter() {
         JwtGrantedAuthoritiesConverter authoritiesConverter = new JwtGrantedAuthoritiesConverter();

@@ -10,11 +10,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-/**
- * Endpoints for the signed-in user. User management (list, approve, ban, delete) lives in {@link AdminController}.
- */
 @RestController
-@RequestMapping("/bfi/v1/user")
+@RequestMapping("/api/v1/user")
 @RequiredArgsConstructor
 public class UserController {
     private final UserServicesImpl userService;

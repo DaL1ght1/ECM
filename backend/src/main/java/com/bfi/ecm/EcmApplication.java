@@ -1,7 +1,7 @@
 package com.bfi.ecm;
 
 import com.bfi.ecm.Configurations.AdminProperties;
-import com.bfi.ecm.Configurations.FileStorageProperties;
+import com.bfi.ecm.Configurations.StorageProperties;
 import com.bfi.ecm.Configurations.security.JwtProperties;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -10,7 +10,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 
 @SpringBootApplication
 @EnableConfigurationProperties({
-        FileStorageProperties.class,
+        StorageProperties.class,
         JwtProperties.class,
         AdminProperties.class
 })

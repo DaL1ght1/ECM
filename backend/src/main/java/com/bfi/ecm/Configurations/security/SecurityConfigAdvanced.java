@@ -21,7 +21,7 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 public class SecurityConfigAdvanced {
 
     private static final String[] PUBLIC_ENDPOINTS = {
-            "/bfi/v1/auth/**",
+            "/api/v1/auth/**",
             "/error",
             "/v3/api-docs",
             "/v3/api-docs/**",
@@ -36,12 +36,10 @@ public class SecurityConfigAdvanced {
     public SecurityFilterChain configure(HttpSecurity http) throws Exception {
 
         http.cors(withDefaults())
-                // Bearer tokens are not sent automatically by the browser; the only cookie is the
-                // SameSite=Strict refresh token scoped to /bfi/v1/auth, so CSRF protection is not needed.
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(req -> req
                         .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
-                        .requestMatchers("/bfi/v1/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
                 .oauth2ResourceServer(oauth2 -> oauth2

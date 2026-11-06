@@ -8,7 +8,7 @@ import { Person } from '../Models/person.model';
   providedIn: 'root'
 })
 export class PersonService {
-  private apiUrl = `${environment.apiUrl}/bfi/v1`;
+  private apiUrl = `${environment.apiUrl}/api/v1`;
 
   constructor(private http: HttpClient) {}
 

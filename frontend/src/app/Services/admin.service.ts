@@ -7,7 +7,7 @@ import { Person } from '../Models/person.model';
   providedIn: 'root'
 })
 export class AdminService {
-  private apiUrl = 'http://localhost:8090/bfi/v1/admin'; // Adjust based on your backend URL
+  private apiUrl = 'http://localhost:8090/api/v1/admin'; // Adjust based on your backend URL
 
   constructor(private http: HttpClient) {}
 

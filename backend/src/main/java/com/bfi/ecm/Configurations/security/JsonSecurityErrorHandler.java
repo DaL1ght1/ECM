@@ -16,9 +16,6 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
-/**
- * Returns RFC 7807 JSON for 401/403 instead of an empty body or a 500 from a bad token.
- */
 @Component
 @RequiredArgsConstructor
 public class JsonSecurityErrorHandler implements AuthenticationEntryPoint, AccessDeniedHandler {

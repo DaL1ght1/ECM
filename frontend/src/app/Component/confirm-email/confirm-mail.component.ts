@@ -15,7 +15,7 @@ export class ConfirmMailComponent {
   constructor(private http: HttpClient, protected router: Router) {}
 
   onSubmit() {
-    this.http.get(`${environment.apiUrl}/bfi/v1/auth/activate-account`, {
+    this.http.get(`${environment.apiUrl}/api/v1/auth/activate-account`, {
       params: { token: this.token }
     }).subscribe({
       next: () => {

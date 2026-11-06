@@ -18,7 +18,6 @@ public interface AuthenticationService {
 
     void activateAccount(String token) throws MessagingException, IOException;
 
-    /** The JSON body for the client plus the raw refresh token, which goes into an HttpOnly cookie. */
     record AuthSession(AuthenticationResponse body, String refreshToken) {
     }
 }

@@ -5,9 +5,6 @@ import com.bfi.ecm.Entities.User;
 import java.io.Serializable;
 import java.time.LocalDate;
 
-/**
- * Public view of {@link User}. Never includes the password hash.
- */
 public record UserDto(
         Long id,
         String uuid,

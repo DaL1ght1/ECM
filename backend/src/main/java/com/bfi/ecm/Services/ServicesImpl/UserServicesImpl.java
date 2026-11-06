@@ -6,6 +6,7 @@ import com.bfi.ecm.Repository.UserRepository;
 import com.bfi.ecm.Repository.UserTokenRepository;
 import com.bfi.ecm.Services.RefreshTokenService;
 import com.bfi.ecm.Services.UserServices;
+import com.bfi.ecm.Tools.Roles;
 import jakarta.mail.MessagingException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -15,14 +16,11 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
 public class UserServicesImpl implements UserServices {
 
-
-    private static final Set<String> ASSIGNABLE_ROLES = Set.of("USER", "SECURITY", "HR", "ENGINEER", "MANAGER", "ADMIN");
 
     private final UserRepository userRepository;
     private final EmailServiceImpl emailServiceImpl;
@@ -102,7 +100,6 @@ public class UserServicesImpl implements UserServices {
         user.setAccountLocked(!user.isAccountLocked());
         userRepository.save(user);
         if (user.isAccountLocked()) {
-            // Access tokens are short-lived; revoking refresh tokens ends the session within one access-token TTL.
             refreshTokenService.revokeAll(user);
         }
         return user.isAccountLocked();
@@ -119,7 +116,7 @@ public class UserServicesImpl implements UserServices {
     }
 
     private static String requireAssignableRole(String role) {
-        if (role == null || !ASSIGNABLE_ROLES.contains(role)) {
+        if (role == null || !Roles.ASSIGNABLE.contains(role)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unknown role: " + role);
         }
         return role;
