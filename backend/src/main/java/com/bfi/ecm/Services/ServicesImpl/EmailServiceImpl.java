@@ -4,6 +4,7 @@ import com.bfi.ecm.Enums.EmailTemplateName;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
@@ -21,6 +22,12 @@ public class EmailServiceImpl {
 
     private final JavaMailSender mailSender;
     private final SpringTemplateEngine templateEngine;
+
+    @Value("${ecm.mail.from:}")
+    private String configuredFrom;
+
+    @Value("${spring.mail.username:}")
+    private String mailUsername;
 
 
     @Async
@@ -44,7 +51,7 @@ public class EmailServiceImpl {
         model.put("activationCode", activationCode);
         Context context = new Context();
         context.setVariables(model);
-        mimeMessageHelper.setFrom("contact@help.com");
+        setSender(mimeMessageHelper);
         mimeMessageHelper.setTo(to);
         mimeMessageHelper.setSubject(subject);
         String temp = templateEngine.process(templateName, context);
@@ -77,11 +84,18 @@ public class EmailServiceImpl {
         model.put("activationCode", activationCode);
         Context context = new Context();
         context.setVariables(model);
-        mimeMessageHelper.setFrom("contact@help.com");
+        setSender(mimeMessageHelper);
         mimeMessageHelper.setTo(to);
         mimeMessageHelper.setSubject(subject);
         String temp = templateEngine.process(templateName, context);
         mimeMessageHelper.setText(temp, true);
         mailSender.send(mimeMessage);
+    }
+
+    private void setSender(MimeMessageHelper helper) throws MessagingException {
+        String sender = configuredFrom == null || configuredFrom.isBlank() ? mailUsername : configuredFrom;
+        if (sender != null && !sender.isBlank()) {
+            helper.setFrom(sender);
+        }
     }
 }

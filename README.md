@@ -69,7 +69,8 @@ To run the backend without Docker, `./mvnw spring-boot:test-run` starts it with 
 | `ECM_PORT`            | Port the web interface listens on                                      | `8080`                  |
 | `JWT_COOKIE_SECURE`   | Set to `false` only when serving over plain HTTP on a non-localhost host | `true`                |
 | `ECM_MAX_FILE_SIZE`   | Maximum upload size                                                    | `100MB`                 |
-| `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD` | SMTP server for activation and approval emails |                 |
+| `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD` | SMTP server for activation and approval emails; for Gmail use `smtp.gmail.com`, port `587` and an app password |                 |
+| `MAIL_FROM`           | Sender address; defaults to `MAIL_USERNAME`                            |                         |
 
 ## Tests
 
