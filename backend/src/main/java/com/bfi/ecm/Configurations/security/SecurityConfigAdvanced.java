@@ -23,6 +23,7 @@ public class SecurityConfigAdvanced {
     private static final String[] PUBLIC_ENDPOINTS = {
             "/api/v1/auth/**",
             "/error",
+            "/actuator/health",
             "/v3/api-docs",
             "/v3/api-docs/**",
             "/swagger-ui/**",

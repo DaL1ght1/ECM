@@ -62,6 +62,15 @@ class DocumentLifecycleIntegrationTest extends PostgresIntegrationTest {
     }
 
     @Test
+    void exposesOnlyAnAnonymousHealthStatus() throws Exception {
+        mockMvc.perform(get("/actuator/health"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("UP"))
+                .andExpect(jsonPath("$.components").doesNotExist());
+        mockMvc.perform(get("/actuator/env")).andExpect(status().isUnauthorized());
+    }
+
+    @Test
     void rejectsAnonymousRequests() throws Exception {
         mockMvc.perform(get("/api/v1/folders")).andExpect(status().isUnauthorized());
     }
