@@ -35,6 +35,9 @@ public class Document extends BaseEntity {
 
     private Instant deletedAt;
 
+    @Column(name = "search_indexed_version", insertable = false, updatable = false)
+    private Long searchIndexedVersion;
+
     public boolean isDeleted() {
         return deletedAt != null;
     }

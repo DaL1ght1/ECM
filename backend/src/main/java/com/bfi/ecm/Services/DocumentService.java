@@ -32,6 +32,4 @@ public interface DocumentService {
     DocumentDto restoreFromTrash(String documentId);
 
     void purge(String documentId);
-
-    List<DocumentDto> searchByName(String query, int limit);
 }

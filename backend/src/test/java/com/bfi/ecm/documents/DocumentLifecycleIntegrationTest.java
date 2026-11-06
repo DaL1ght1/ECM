@@ -33,7 +33,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@SpringBootTest
+@SpringBootTest(properties = "ecm.search.indexing-enabled=false")
 @AutoConfigureMockMvc
 class DocumentLifecycleIntegrationTest extends PostgresIntegrationTest {
 
@@ -180,8 +180,6 @@ class DocumentLifecycleIntegrationTest extends PostgresIntegrationTest {
                 .andExpect(status().isForbidden());
         mockMvc.perform(get("/api/v1/folders/shared").header(HttpHeaders.AUTHORIZATION, bearer(bob)))
                 .andExpect(jsonPath("$[*].id", hasItem(folderId)));
-        mockMvc.perform(get("/api/v1/search").param("q", "design-notes").header(HttpHeaders.AUTHORIZATION, bearer(bob)))
-                .andExpect(jsonPath("$[*].id", hasItem(documentId)));
         mockMvc.perform(get("/api/v1/folders/" + folderId + "/permissions").header(HttpHeaders.AUTHORIZATION, bearer(bob)))
                 .andExpect(status().isForbidden());
     }

@@ -5,6 +5,7 @@ import com.bfi.ecm.Entities.Folder;
 import com.bfi.ecm.Entities.User;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -34,6 +35,25 @@ public interface DocumentRepository extends JpaRepository<Document, Long> {
 
     boolean existsByFolderIsNullAndOwnerAndNameIgnoreCaseAndDeletedAtIsNull(User owner, String name);
 
-    @Query("SELECT d FROM Document d WHERE d.deletedAt IS NULL AND LOWER(d.name) LIKE LOWER(CONCAT('%', :query, '%')) ORDER BY d.updatedAt DESC")
-    List<Document> searchByName(@Param("query") String query, Pageable pageable);
+    List<Document> findByUuidIn(Collection<String> uuids);
+
+    @Query("""
+            SELECT d.uuid FROM Document d
+            WHERE d.deletedAt IS NULL
+              AND (d.searchIndexedVersion IS NULL OR d.searchIndexedVersion <> d.lockVersion)
+            ORDER BY d.id
+            """)
+    List<String> findStaleForSearch(Pageable pageable);
+
+    @Modifying
+    @Query("UPDATE Document d SET d.searchIndexedVersion = :version WHERE d.id = :id AND d.lockVersion = :version")
+    int markIndexed(@Param("id") Long id, @Param("version") long version);
+
+    @Modifying
+    @Query("UPDATE Document d SET d.searchIndexedVersion = NULL WHERE d.folder IN :folders")
+    void markStaleInFolders(@Param("folders") Collection<Folder> folders);
+
+    @Modifying
+    @Query("UPDATE Document d SET d.searchIndexedVersion = NULL")
+    void markAllStale();
 }

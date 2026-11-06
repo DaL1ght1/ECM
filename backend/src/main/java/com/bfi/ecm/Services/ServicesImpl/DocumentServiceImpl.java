@@ -5,6 +5,7 @@ import com.bfi.ecm.Entities.DocumentVersion;
 import com.bfi.ecm.Entities.Folder;
 import com.bfi.ecm.Entities.User;
 import com.bfi.ecm.Enums.AccessLevel;
+import com.bfi.ecm.Events.SearchIndexEvent;
 import com.bfi.ecm.Mappers.DocumentContent;
 import com.bfi.ecm.Mappers.DocumentDto;
 import com.bfi.ecm.Mappers.DocumentVersionDto;
@@ -16,7 +17,7 @@ import com.bfi.ecm.Services.BlobStorage.StoredBlob;
 import com.bfi.ecm.Services.DocumentService;
 import lombok.RequiredArgsConstructor;
 import org.apache.tika.Tika;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,7 +39,6 @@ import java.util.Objects;
 public class DocumentServiceImpl implements DocumentService {
 
     private static final int MAX_NAME_LENGTH = 255;
-    private static final int SEARCH_CANDIDATES = 200;
 
     private final DocumentRepository documentRepository;
     private final DocumentVersionRepository versionRepository;
@@ -46,6 +46,7 @@ public class DocumentServiceImpl implements DocumentService {
     private final BlobStorage blobStorage;
     private final AccessPolicy accessPolicy;
     private final CurrentUserProvider currentUser;
+    private final ApplicationEventPublisher events;
     private final Tika tika = new Tika();
 
     @Override
@@ -67,6 +68,7 @@ public class DocumentServiceImpl implements DocumentService {
 
         StoredBlob blob = storeBlob(file);
         document.setCurrentVersion(createVersion(document, 1, blob, detectMimeType(blob, name), comment, user));
+        reindex(document);
         return DocumentDto.fromEntity(documentRepository.saveAndFlush(document), AccessLevel.WRITE);
     }
 
@@ -98,6 +100,7 @@ public class DocumentServiceImpl implements DocumentService {
 
         int nextNumber = current == null ? 1 : current.getVersionNumber() + 1;
         document.setCurrentVersion(createVersion(document, nextNumber, blob, detectMimeType(blob, document.getName()), comment, user));
+        reindex(document);
         return DocumentDto.fromEntity(documentRepository.saveAndFlush(document), access);
     }
 
@@ -151,6 +154,7 @@ public class DocumentServiceImpl implements DocumentService {
         restored.setComment("Restored from version " + versionNumber);
         restored.setCreatedBy(user);
         document.setCurrentVersion(versionRepository.save(restored));
+        reindex(document);
         return DocumentDto.fromEntity(documentRepository.saveAndFlush(document), access);
     }
 
@@ -165,6 +169,7 @@ public class DocumentServiceImpl implements DocumentService {
             ensureNameAvailable(document.getFolder(), document.getOwner(), newName);
         }
         document.setName(newName);
+        reindex(document);
         return DocumentDto.fromEntity(documentRepository.saveAndFlush(document), access);
     }
 
@@ -180,6 +185,7 @@ public class DocumentServiceImpl implements DocumentService {
         }
         ensureNameAvailable(target, document.getOwner(), document.getName());
         document.setFolder(target);
+        reindex(document);
         documentRepository.saveAndFlush(document);
         return DocumentDto.fromEntity(document, accessPolicy.documentAccess(user, document).orElse(AccessLevel.READ));
     }
@@ -191,6 +197,7 @@ public class DocumentServiceImpl implements DocumentService {
         Document document = findLiveDocument(documentId);
         accessPolicy.requireDocument(user, document, AccessLevel.WRITE);
         document.setDeletedAt(Instant.now());
+        reindex(document);
     }
 
     @Override
@@ -210,6 +217,7 @@ public class DocumentServiceImpl implements DocumentService {
         Document document = findTrashedDocument(user, documentId);
         ensureNameAvailable(document.getFolder(), document.getOwner(), document.getName());
         document.setDeletedAt(null);
+        reindex(document);
         return DocumentDto.fromEntity(documentRepository.saveAndFlush(document), AccessLevel.WRITE);
     }
 
@@ -227,19 +235,8 @@ public class DocumentServiceImpl implements DocumentService {
         documentRepository.saveAndFlush(document);
         versionRepository.deleteByDocument(document);
         documentRepository.delete(document);
+        reindex(document);
         afterCommit(() -> blobKeys.forEach(blobStorage::delete));
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<DocumentDto> searchByName(String query, int limit) {
-        User user = currentUser.get();
-        return documentRepository.searchByName(query.trim(), PageRequest.of(0, SEARCH_CANDIDATES)).stream()
-                .flatMap(document -> accessPolicy.documentAccess(user, document)
-                        .map(access -> DocumentDto.fromEntity(document, access))
-                        .stream())
-                .limit(limit)
-                .toList();
     }
 
     private DocumentVersion createVersion(Document document, int number, StoredBlob blob, String mimeType, String comment, User author) {
@@ -324,6 +321,10 @@ public class DocumentServiceImpl implements DocumentService {
     private DocumentVersion findVersion(Document document, int versionNumber) {
         return versionRepository.findByDocumentAndVersionNumber(document, versionNumber)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Version " + versionNumber + " not found"));
+    }
+
+    private void reindex(Document document) {
+        events.publishEvent(SearchIndexEvent.of(document.getUuid()));
     }
 
     private static void afterCommit(Runnable action) {

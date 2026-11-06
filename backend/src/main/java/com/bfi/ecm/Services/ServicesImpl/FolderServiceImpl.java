@@ -6,6 +6,7 @@ import com.bfi.ecm.Entities.FolderPermission;
 import com.bfi.ecm.Entities.User;
 import com.bfi.ecm.Enums.AccessLevel;
 import com.bfi.ecm.Enums.PrincipalType;
+import com.bfi.ecm.Events.SearchIndexEvent;
 import com.bfi.ecm.Mappers.DocumentDto;
 import com.bfi.ecm.Mappers.FolderContentsDto;
 import com.bfi.ecm.Mappers.FolderDto;
@@ -18,6 +19,7 @@ import com.bfi.ecm.Requests.CreateFolderRequest;
 import com.bfi.ecm.Services.FolderService;
 import com.bfi.ecm.Tools.Roles;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,6 +44,7 @@ public class FolderServiceImpl implements FolderService {
     private final UserRepository userRepository;
     private final AccessPolicy accessPolicy;
     private final CurrentUserProvider currentUser;
+    private final ApplicationEventPublisher events;
 
     @Override
     @Transactional(readOnly = true)
@@ -123,6 +126,7 @@ public class FolderServiceImpl implements FolderService {
             ensureNameAvailable(folder.getParent(), folder.getOwner(), newName);
         }
         folder.setName(newName);
+        reindexSubtree(folder);
         return FolderDto.fromEntity(folder, access);
     }
 
@@ -143,6 +147,7 @@ public class FolderServiceImpl implements FolderService {
         }
         ensureNameAvailable(target, folder.getOwner(), folder.getName());
         folder.setParent(target);
+        reindexSubtree(folder);
         return FolderDto.fromEntity(folder, accessPolicy.folderAccess(user, folder).orElse(AccessLevel.READ));
     }
 
@@ -155,7 +160,9 @@ public class FolderServiceImpl implements FolderService {
 
         List<Folder> subtree = collectSubtree(folder);
         Instant now = Instant.now();
-        for (Document document : documentRepository.findByFolderIn(subtree)) {
+        List<Document> affected = documentRepository.findByFolderIn(subtree);
+        events.publishEvent(SearchIndexEvent.of(affected.stream().map(Document::getUuid).toList()));
+        for (Document document : affected) {
             if (document.getDeletedAt() == null) {
                 document.setDeletedAt(now);
             }
@@ -193,7 +200,9 @@ public class FolderServiceImpl implements FolderService {
             permission.setAccess(dto.access());
             return permission;
         }).toList();
-        return permissionRepository.saveAll(saved).stream().map(PermissionDto::fromEntity).toList();
+        List<PermissionDto> result = permissionRepository.saveAll(saved).stream().map(PermissionDto::fromEntity).toList();
+        reindexSubtree(folder);
+        return result;
     }
 
     private Folder findFolder(String folderId) {
@@ -227,6 +236,18 @@ public class FolderServiceImpl implements FolderService {
         if (!valid) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "Unknown " + permission.principalType().name().toLowerCase() + ": " + permission.principal());
+        }
+    }
+
+    private void reindexSubtree(Folder folder) {
+        List<Folder> subtree = collectSubtree(folder);
+        documentRepository.markStaleInFolders(subtree);
+        List<String> documentIds = documentRepository.findByFolderIn(subtree).stream()
+                .filter(document -> !document.isDeleted())
+                .map(Document::getUuid)
+                .toList();
+        if (!documentIds.isEmpty()) {
+            events.publishEvent(SearchIndexEvent.of(documentIds));
         }
     }
 

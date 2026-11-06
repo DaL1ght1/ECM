@@ -7,6 +7,7 @@ import com.bfi.ecm.Configurations.security.SecurityConfigAdvanced;
 import com.bfi.ecm.Controllers.AdminController;
 import com.bfi.ecm.Entities.User;
 import com.bfi.ecm.Services.ServicesImpl.JwtServiceImpl;
+import com.bfi.ecm.Services.ServicesImpl.SearchIndexer;
 import com.bfi.ecm.Services.ServicesImpl.UserServicesImpl;
 import com.nimbusds.jose.jwk.source.ImmutableSecret;
 import org.junit.jupiter.api.Test;
@@ -46,6 +47,9 @@ class AdminEndpointSecurityTest {
 
     @MockBean
     private UserServicesImpl userService;
+
+    @MockBean
+    private SearchIndexer searchIndexer;
 
     @Test
     void rejectsRequestWithoutToken() throws Exception {

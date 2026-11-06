@@ -1,0 +1,30 @@
+{
+  "dynamic": "strict",
+  "properties": {
+    "id": { "type": "keyword" },
+    "versionNumber": { "type": "integer" },
+    "title": {
+      "type": "text",
+      "analyzer": "ecm_french",
+      "fields": {
+        "folded": { "type": "text", "analyzer": "ecm_folding" },
+        "prefix": { "type": "search_as_you_type", "analyzer": "ecm_folding" }
+      }
+    },
+    "content": {
+      "type": "text",
+      "analyzer": "ecm_french",
+      "fields": {
+        "folded": { "type": "text", "analyzer": "ecm_folding" }
+      }
+    },
+    "folderId": { "type": "keyword" },
+    "folderAncestors": { "type": "keyword" },
+    "folderPath": { "type": "text", "analyzer": "ecm_folding" },
+    "ownerId": { "type": "keyword" },
+    "allowedPrincipals": { "type": "keyword" },
+    "mimeType": { "type": "keyword" },
+    "size": { "type": "long" },
+    "updatedAt": { "type": "date", "format": "epoch_millis" }
+  }
+}

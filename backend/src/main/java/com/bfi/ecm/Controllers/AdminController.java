@@ -1,6 +1,7 @@
 package com.bfi.ecm.Controllers;
 
 import com.bfi.ecm.Mappers.UserDto;
+import com.bfi.ecm.Services.ServicesImpl.SearchIndexer;
 import com.bfi.ecm.Services.ServicesImpl.UserServicesImpl;
 import jakarta.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,10 +18,18 @@ import java.util.List;
 public class AdminController {
 
     private final UserServicesImpl userService;
+    private final SearchIndexer searchIndexer;
 
     @Autowired
-    public AdminController(UserServicesImpl userService) {
+    public AdminController(UserServicesImpl userService, SearchIndexer searchIndexer) {
         this.userService = userService;
+        this.searchIndexer = searchIndexer;
+    }
+
+    @PostMapping("/search/reindex")
+    public ResponseEntity<Void> rebuildSearchIndex() {
+        searchIndexer.rebuild();
+        return ResponseEntity.accepted().build();
     }
 
     @GetMapping("/pending-users")

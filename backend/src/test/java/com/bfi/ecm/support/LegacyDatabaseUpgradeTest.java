@@ -42,7 +42,7 @@ class LegacyDatabaseUpgradeTest {
                     .migrate();
 
             assertThat(result.success).isTrue();
-            assertThat(result.migrations).extracting(migration -> migration.version).containsExactly("2");
+            assertThat(result.migrations).extracting(migration -> migration.version).containsExactly("2", "3");
             try (Connection connection = dataSource.getConnection(); Statement statement = connection.createStatement();
                  ResultSet users = statement.executeQuery("select count(*) from _user")) {
                 users.next();
