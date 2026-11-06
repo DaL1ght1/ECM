@@ -2,29 +2,32 @@ package com.bfi.ecm.Services.ServicesImpl;
 
 import com.bfi.ecm.Entities.User;
 import com.bfi.ecm.Enums.EmailTemplateName;
-import com.bfi.ecm.Repository.TokensRepository;
 import com.bfi.ecm.Repository.UserRepository;
 import com.bfi.ecm.Repository.UserTokenRepository;
+import com.bfi.ecm.Services.RefreshTokenService;
 import com.bfi.ecm.Services.UserServices;
 import jakarta.mail.MessagingException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
-import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
 public class UserServicesImpl implements UserServices {
 
 
+    private static final Set<String> ASSIGNABLE_ROLES = Set.of("USER", "SECURITY", "HR", "ENGINEER", "MANAGER", "ADMIN");
+
     private final UserRepository userRepository;
     private final EmailServiceImpl emailServiceImpl;
-    private final PasswordEncoder passwordEncoder;
     private final UserTokenRepository userTokenRepository;
-    private final TokensRepository tokensRepository;
+    private final RefreshTokenService refreshTokenService;
 
 
     @Override
@@ -33,29 +36,14 @@ public class UserServicesImpl implements UserServices {
         return userRepository.findAll();
     }
 
-    public boolean emailExists(String email) {
-        return userRepository.existsByEmail(email);
-    }
-
-    @Override
-    public void save(User p) throws MessagingException, IOException {
-        if (emailExists(p.getEmail())) {
-            throw new RuntimeException("Email already exists");
-        }
-        p.setPassword(passwordEncoder.encode(p.getPassword()));
-        userRepository.save(p);
-
-    }
-
-    @Override
-    public void updateUser(User p) {
-        userRepository.findById(p.getId()).ifPresent(p1 -> userRepository.save(p));
-
-    }
-
     @Override
     public User findUserByID(Long ID) {
         return userRepository.findById(ID).orElse(null);
+    }
+
+    @Override
+    public Optional<User> findByUuid(String uuid) {
+        return userRepository.findByUuid(uuid);
     }
 
     public List<User> findPendingUsers() {
@@ -65,7 +53,7 @@ public class UserServicesImpl implements UserServices {
     public void approveUser(Long id, String role) throws MessagingException {
         User User = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
         User.setAccountLocked(false);
-        User.setRole(role);
+        User.setRole(requireAssignableRole(role));
         User.setEnabled(true);
         userRepository.save(User);
 
@@ -87,6 +75,7 @@ public class UserServicesImpl implements UserServices {
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         userTokenRepository.deleteByUser(User);
+        refreshTokenService.deleteAll(User);
         userRepository.deleteById(id);
 
         String targetEmail = User.getEmail();
@@ -103,7 +92,7 @@ public class UserServicesImpl implements UserServices {
 
     public void updateUserRole(Long id, String role) {
         User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
-        user.setRole(role);  // Assuming the `User` entity has a `setRole` method
+        user.setRole(requireAssignableRole(role));
         userRepository.save(user);
     }
 
@@ -112,6 +101,10 @@ public class UserServicesImpl implements UserServices {
         User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
         user.setAccountLocked(!user.isAccountLocked());
         userRepository.save(user);
+        if (user.isAccountLocked()) {
+            // Access tokens are short-lived; revoking refresh tokens ends the session within one access-token TTL.
+            refreshTokenService.revokeAll(user);
+        }
         return user.isAccountLocked();
     }
 
@@ -120,8 +113,16 @@ public class UserServicesImpl implements UserServices {
     public void deleteUser(Long id) {
         User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
         userTokenRepository.deleteByUser(user);
+        refreshTokenService.deleteAll(user);
         userRepository.deleteById(id);
 
+    }
+
+    private static String requireAssignableRole(String role) {
+        if (role == null || !ASSIGNABLE_ROLES.contains(role)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unknown role: " + role);
+        }
+        return role;
     }
 
 }

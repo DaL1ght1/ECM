@@ -31,11 +31,8 @@ public class RegistrationRequest {
     @Size(min = 8, message = "Password should be at least 8 characters")
     private String password;
     private LocalDate dateOfBirth;
-    private boolean accountLocked;
-    private boolean enabled;
     private String gender;
     private String address;
     private String phone;
-    private String role;
 
 }

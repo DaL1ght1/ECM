@@ -1,17 +1,19 @@
 package com.bfi.ecm.Controllers;
 
-import com.bfi.ecm.Entities.User;
+import com.bfi.ecm.Mappers.UserDto;
 import com.bfi.ecm.Services.ServicesImpl.UserServicesImpl;
 import jakarta.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/bfi/v1/admin")
+@PreAuthorize("hasRole('ADMIN')")
 public class AdminController {
 
     private final UserServicesImpl userService;
@@ -22,8 +24,8 @@ public class AdminController {
     }
 
     @GetMapping("/pending-users")
-    public List<User> getPendingUsers() {
-        return userService.findPendingUsers();
+    public List<UserDto> getPendingUsers() {
+        return userService.findPendingUsers().stream().map(UserDto::fromEntity).toList();
     }
 
     @PutMapping("/approve/{id}")
@@ -39,8 +41,8 @@ public class AdminController {
     }
 
     @GetMapping("/all-users")
-    public List<User> getAllUsers() {
-        return userService.findAllUsers();
+    public List<UserDto> getAllUsers() {
+        return userService.findAllUsers().stream().map(UserDto::fromEntity).toList();
     }
 
     @PutMapping("/update-role/{id}")

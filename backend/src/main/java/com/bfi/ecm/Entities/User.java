@@ -1,5 +1,6 @@
 package com.bfi.ecm.Entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
@@ -35,6 +36,7 @@ public class User extends BaseEntity implements UserDetails, Principal {
     @NotNull
     private String email;
     private LocalDate dateOfBirth;
+    @JsonIgnore
     private String password;
     private boolean accountLocked;
     private boolean enabled;

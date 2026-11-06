@@ -1,19 +1,19 @@
 package com.bfi.ecm;
 
+import com.bfi.ecm.Configurations.AdminProperties;
 import com.bfi.ecm.Configurations.FileStorageProperties;
+import com.bfi.ecm.Configurations.security.JwtProperties;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.scheduling.annotation.EnableAsync;
 
 @SpringBootApplication
 @EnableConfigurationProperties({
-        FileStorageProperties.class
+        FileStorageProperties.class,
+        JwtProperties.class,
+        AdminProperties.class
 })
-@EnableJpaAuditing
-@EnableJpaRepositories("com.bfi.ecm.Repository")
 @EnableAsync
 public class EcmApplication {
 

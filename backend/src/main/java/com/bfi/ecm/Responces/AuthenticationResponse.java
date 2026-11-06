@@ -10,6 +10,7 @@ import lombok.Setter;
 
 public class AuthenticationResponse {
     private String token;
+    private long expiresIn;
     private boolean approved;
     private String role;
     private boolean accountLocked;

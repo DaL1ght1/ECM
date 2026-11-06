@@ -1,78 +1,29 @@
 package com.bfi.ecm.Controllers;
 
-import com.bfi.ecm.Entities.User;
+import com.bfi.ecm.Mappers.UserDto;
 import com.bfi.ecm.Services.ServicesImpl.UserServicesImpl;
-import jakarta.mail.MessagingException;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.io.IOException;
-import java.util.List;
-
+/**
+ * Endpoints for the signed-in user. User management (list, approve, ban, delete) lives in {@link AdminController}.
+ */
 @RestController
 @RequestMapping("/bfi/v1/user")
-
+@RequiredArgsConstructor
 public class UserController {
     private final UserServicesImpl userService;
 
-    @Autowired
-    public UserController(UserServicesImpl userService) {
-        this.userService = userService;
+    @GetMapping("/me")
+    public ResponseEntity<UserDto> me(@AuthenticationPrincipal Jwt jwt) {
+        return userService.findByUuid(jwt.getSubject())
+                .map(UserDto::fromEntity)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
-
-
-    @GetMapping()
-    public List<User> findAllUsers() {
-        return userService.findAllUsers();
-    }
-
-    @GetMapping("/email-exists")
-    public ResponseEntity<Boolean> checkEmailExists(@RequestParam String email) {
-        boolean exists = userService.emailExists(email);
-        return ResponseEntity.ok(exists);
-    }
-
-    @PostMapping("/save")
-    public ResponseEntity<User> saveUser(@RequestBody User user) throws MessagingException, IOException {
-        if (userService.emailExists(user.getEmail())) {
-            return ResponseEntity.badRequest().body(user);
-        }
-        user.setAccountLocked(true);
-        userService.save(user);
-        return ResponseEntity.ok(user);
-    }
-
-    @GetMapping("/{id}")
-    public User findUserById(@PathVariable("id") Long id) {
-        return userService.findUserByID(id);
-    }
-
-    @PutMapping("/UpdateUser")
-    public void updateUser(@RequestBody User user) {
-        userService.updateUser(user);
-    }
-
-
-    @DeleteMapping("/{id}")
-    public void deleteUser(@PathVariable Long id) {
-        userService.deleteUser(id);
-    }
-
-    @PutMapping("/approve/{id}")
-    public void approveUser(@PathVariable Long id, @RequestBody boolean approved) {
-        User user = userService.findUserByID(id);
-        if (user != null) {
-            user.setAccountLocked(!approved);
-            userService.updateUser(user);
-
-        }
-    }
-
-    @GetMapping("/pending")
-    public List<User> getPendingUsers() {
-        return userService.findPendingUsers();
-    }
-
-
 }

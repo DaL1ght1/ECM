@@ -1,30 +1,40 @@
 package com.bfi.ecm.Mappers;
 
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotNull;
-import lombok.Value;
+import com.bfi.ecm.Entities.User;
 
 import java.io.Serializable;
 import java.time.LocalDate;
 
 /**
- * DTO for {@link com.bfi.ecm.Entities.User}
+ * Public view of {@link User}. Never includes the password hash.
  */
-@Value
-public class UserDto implements Serializable {
-    String name;
-    String lastName;
-    @NotNull
-    @Email
-    String email;
-    LocalDate dateOfBirth;
-    String password;
-    boolean accountLocked;
-    boolean enabled;
-    String gender;
-    String address;
-    String phone;
-    String role;
+public record UserDto(
+        Long id,
+        String uuid,
+        String name,
+        String lastName,
+        String email,
+        LocalDate dateOfBirth,
+        String gender,
+        String address,
+        String phone,
+        String role,
+        boolean enabled,
+        boolean accountLocked) implements Serializable {
 
-
+    public static UserDto fromEntity(User user) {
+        return new UserDto(
+                user.getId(),
+                user.getUuid(),
+                user.getName(),
+                user.getLastName(),
+                user.getEmail(),
+                user.getDateOfBirth(),
+                user.getGender(),
+                user.getAddress(),
+                user.getPhone(),
+                user.getRole(),
+                user.isEnabled(),
+                user.isAccountLocked());
+    }
 }

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import {Observable, BehaviorSubject, tap, throwError, catchError} from 'rxjs';
+import {Observable, BehaviorSubject, tap, throwError, catchError, map, finalize, shareReplay} from 'rxjs';
 import { Router } from '@angular/router';
 import { environment } from '../environments/environment';
 import { MessageService } from 'primeng/api';
@@ -22,6 +22,7 @@ export class AuthService {
   public isAuthenticated$: Observable<boolean>;
 
   private jwtHelper: JwtHelperService = new JwtHelperService();
+  private refreshInFlight: Observable<string> | null = null;
   private closeTabTimeout: any;
 
   constructor(
@@ -48,8 +49,8 @@ export class AuthService {
     if (token && !this.jwtHelper.isTokenExpired(token)) {
       const decodedToken = this.jwtHelper.decodeToken(token);
       return {
-        email: decodedToken.sub,
-        role: decodedToken.role || ''
+        email: decodedToken.email,
+        role: decodedToken.roles?.[0] || ''
       };
     }
     return null;
@@ -76,7 +77,7 @@ export class AuthService {
   }
 
   login(email: string, password: string): Observable<any> {
-    return this.http.post<any>(`${environment.apiUrl}/bfi/v1/auth/authenticate`, { email, password }).pipe(
+    return this.http.post<any>(`${environment.apiUrl}/bfi/v1/auth/authenticate`, { email, password }, { withCredentials: true }).pipe(
       tap(response => {
         if (response && response.token) {
           this.saveToken(response.token,response.role);
@@ -99,7 +100,30 @@ export class AuthService {
     );
   }
 
+  /**
+   * Exchanges the HttpOnly refresh cookie for a new access token.
+   * Concurrent callers share one request: the backend rotates the cookie and treats a second use as token theft.
+   */
+  refresh(): Observable<string> {
+    if (!this.refreshInFlight) {
+      this.refreshInFlight = this.http.post<any>(`${environment.apiUrl}/bfi/v1/auth/refresh`, null, { withCredentials: true }).pipe(
+        map(response => {
+          this.saveToken(response.token, response.role);
+          const user = this.loadUserFromToken();
+          if (user) {
+            this.setCurrentUser(user);
+          }
+          return response.token as string;
+        }),
+        finalize(() => this.refreshInFlight = null),
+        shareReplay(1)
+      );
+    }
+    return this.refreshInFlight;
+  }
+
   logout(): void {
+    this.http.post(`${environment.apiUrl}/bfi/v1/auth/logout`, null, { withCredentials: true }).subscribe({ error: () => {} });
     this.messageService.add({ severity: 'success', summary: 'Logout Success', detail: 'Logged out successfully.' });
     setTimeout(() => {
       this.removeToken();
